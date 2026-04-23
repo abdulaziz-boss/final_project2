@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="final_projects2"
+        android:label="frontend_final"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -42,4 +42,8 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
+    <meta-data
+    android:name="com.google.android.gms.client_id"
+    android:value="1090209742586-8g95533582805860315800.apps.googleusercontent.com"/>
 </manifest>

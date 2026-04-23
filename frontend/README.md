@@ -1,4 +1,4 @@
-# final_projects2
+# frontend_final
 
 A new Flutter project.
 
