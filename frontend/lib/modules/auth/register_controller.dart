@@ -6,8 +6,8 @@ class RegisterController extends GetxController {
   final AuthRepository repo = AuthRepository();
 
   // controller input
+  
   final nameC = TextEditingController();
-  final usernameC = TextEditingController();
   final emailC = TextEditingController();
   final passwordC = TextEditingController();
 
@@ -17,7 +17,6 @@ class RegisterController extends GetxController {
     try {
       // VALIDASI BASIC
       if (nameC.text.isEmpty ||
-          usernameC.text.isEmpty ||
           emailC.text.isEmpty ||
           passwordC.text.isEmpty) {
         Get.snackbar("Error", "Semua field wajib diisi");
@@ -32,8 +31,8 @@ class RegisterController extends GetxController {
       isLoading.value = true;
 
       final success = await repo.register({
+        
         "name": nameC.text,
-        "username": usernameC.text,
         "email": emailC.text,
         "password": passwordC.text,
         "password_confirmation": passwordC.text,
@@ -58,7 +57,6 @@ class RegisterController extends GetxController {
   @override
   void onClose() {
     nameC.dispose();
-    usernameC.dispose();
     emailC.dispose();
     passwordC.dispose();
     super.onClose();

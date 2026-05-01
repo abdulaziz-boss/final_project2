@@ -253,25 +253,36 @@ class LoginView extends StatelessWidget {
                 ),
                 backgroundColor: Colors.white,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.network(
-                    'https://img.icons8.com/color/48/000000/google-logo.png',
-                    height: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Masuk dengan Google',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: Color(0xFF3C4A42),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+              child: authC.isLoading.value
+                  ? const Center(
+                      child: SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFF3C4A42),
+                        ),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.network(
+                          'https://img.icons8.com/color/48/000000/google-logo.png',
+                          height: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Masuk dengan Google',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: Color(0xFF3C4A42),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
           )),
           const SizedBox(height: 32),

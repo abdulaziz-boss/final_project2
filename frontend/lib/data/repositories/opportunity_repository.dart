@@ -7,13 +7,25 @@ class OpportunityRepository {
   Future<List<OpportunityModel>> getAll() async {
     try {
       final res = await provider.getAll();
+      final dynamic responseData = res.data;
 
-      final List data = res.data['data'];
+      List? listData;
 
-      return data.map((e) => OpportunityModel.fromJson(e)).toList();
+      if (responseData is List) {
+        listData = responseData;
+      } else if (responseData is Map && responseData['data'] != null) {
+        listData = responseData['data'];
+      }
+
+      if (listData == null) {
+        print("OPPORTUNITY REPO: Data format tidak dikenali. Response: $responseData");
+        return [];
+      }
+
+      return listData.map((e) => OpportunityModel.fromJson(e)).toList();
     } catch (e) {
-      print("ERROR OPPORTUNITY: $e");
+      print("ERROR OPPORTUNITY REPO: $e");
       return [];
-    }
+    } 
   }
 }

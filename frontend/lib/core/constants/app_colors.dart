@@ -1,27 +1,14 @@
-class ApiConstants {
-  static const String baseUrl = "http://192.168.43.73:8000/api";
+import 'package:flutter/material.dart';
 
-  // AUTH
-  static const String login = "/login";
-  static const String register = "/register";
-  static const String googleLogin = "/auth/google";
+class AppColors {
+  static const primary = Color(0xFF006C49);
+  static const secondary = Color(0xFF0051D5);
 
-  // USER
-  static const String profile = "/user";
+  static const background = Color(0xFFF8F9FA);
+  static const white = Colors.white;
 
-  // POST
-  static const String posts = "/posts";
+  static const textPrimary = Color(0xFF191C1D);
+  static const textSecondary = Color(0xFF6C7A71);
 
-  // OPPORTUNITY
-  static const String opportunities = "/opportunities";
-
-  // APPLICATION
-  static const String applications = "/applications";
-
-  // CHAT
-  static const String conversations = "/conversations";
-  static const String messages = "/messages";
-
-  // NOTIFICATION
-  static const String notifications = "/notifications";
+  static const error = Colors.redAccent;
 }

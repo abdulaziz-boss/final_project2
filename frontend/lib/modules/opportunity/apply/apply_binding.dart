@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../apply/apply_controller.dart';
+import 'apply_controller.dart';
 
 class ApplyBinding extends Bindings {
   @override

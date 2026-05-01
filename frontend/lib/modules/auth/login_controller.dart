@@ -25,23 +25,29 @@ class LoginController extends GetxController {
   final GoogleAuthService googleService = GoogleAuthService();
 
   Future<void> loginWithGoogle() async {
-    isLoading.value = true;
+    try {
+      isLoading.value = true;
 
-    final idToken = await googleService.signIn();
+      final idToken = await googleService.signIn();
 
-    if (idToken == null) {
+      if (idToken == null) {
+        isLoading.value = false;
+        print("GOOGLE SIGN IN: User cancelled or failed to get idToken");
+        return;
+      }
+
+      final success = await repo.loginWithGoogle(idToken);
+
+      if (success) {
+        Get.offAllNamed('/main');
+      } else {
+        Get.snackbar("Error", "Login Google gagal");
+      }
+    } catch (e) {
+      print("GOOGLE SIGN IN ERROR: $e");
+      Get.snackbar("Error", "Terjadi kesalahan saat Login Google");
+    } finally {
       isLoading.value = false;
-      return;
-    }
-
-    final success = await repo.loginWithGoogle(idToken);
-
-    isLoading.value = false;
-
-    if (success) {
-      Get.offAllNamed('/main');
-    } else {
-      Get.snackbar("Error", "Login Google gagal");
     }
   }
 }

@@ -23,24 +23,6 @@ class RegisterView extends GetView<RegisterController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Logo/Header Title
-                  Row(
-                    children: [
-                      const Icon(Icons.volunteer_activism, color: Color(0xFF006C49), size: 36),
-                      const SizedBox(width: 8),
-                      Text(
-                        'zakkal.apl',
-                        style: TextStyle(
-                          color: Colors.grey.shade900,
-                          fontSize: 22,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 48),
-
                   // Title Card Putih
                   Container(
                     width: double.infinity,
@@ -59,33 +41,31 @@ class RegisterView extends GetView<RegisterController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Gabung Sebagai Relawan',
-                          style: TextStyle(
-                            color: Color(0xFF191C1D),
-                            fontSize: 24,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontWeight: FontWeight.w700,
-                            height: 1.3,
+                        const Center(
+                          child: Column(
+                            children: [
+                              Icon(Icons.volunteer_activism, color: Color(0xFF006C49), size: 48),
+                              SizedBox(height: 8),
+                              Text(
+                                'zakkal.apl',
+                                style: TextStyle(
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  color: Color(0xFF191C1D),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 36,
+                                  letterSpacing: -1.0,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Mulai perjalanan kontribusi sosial Anda hari ini.',
-                          style: TextStyle(
-                            color: Color(0xFF6C7A71),
-                            fontSize: 15,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 22),
 
                         // TextField Nama
                         _buildInputField(
                           label: 'Nama Lengkap',
                           controller: controller.nameC,
-                          hintText: 'Nama Anda',
+                          hintText: 'Nama Lengkap Anda',
                           icon: Icons.person_outline,
                         ),
                         const SizedBox(height: 20),

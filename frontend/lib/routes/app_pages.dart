@@ -7,7 +7,7 @@ import '../modules/home/home_binding.dart';
 import '../modules/main_nav/main_nav_view.dart';
 import '../modules/main_nav/main_nav_binding.dart';
 import '../middlewares/auth_middleware.dart';
-import '../middlewares/role_middleware.dart';
+// import '../middlewares/role_middleware.dart';
 import '../modules/opportunity/detail/opportunity_detail_view.dart';
 import '../modules/opportunity/detail/opportunity_detail_binding.dart';
 import '../modules/opportunity/apply/apply_binding.dart';

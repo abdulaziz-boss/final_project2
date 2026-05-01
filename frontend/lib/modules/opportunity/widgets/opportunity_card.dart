@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../data/models/opportunity_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../../../core/constants/api_constants.dart';
+import '../../shared/like/like_widget.dart';
 
 class OpportunityCard extends StatelessWidget {
   final OpportunityModel data;
+  final String? applyStatus;
 
-  const OpportunityCard({super.key, required this.data});
+  const OpportunityCard({super.key, required this.data, this.applyStatus});
 
   Future<void> _openMap() async {
     final url = data.mapsUrl ?? '';
     if (url.isEmpty) return;
-
     final uri = Uri.parse(url);
-
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
@@ -25,138 +27,218 @@ class OpportunityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tipe = data.tipe == 'online' ? 'Online' : 'Offline';
     final isActive = data.mapsUrl != null && data.mapsUrl!.isNotEmpty;
+    final orgName = data.organization?.namaOrganisasi ?? "Penyelenggara";
 
-    return GestureDetector(
-      onTap: () {
-        Get.toNamed('/opportunity-detail', arguments: data);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-            )
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 🔥 TITLE
-            Text(
-              data.judul,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
+    String avatarUrl = 'https://ui-avatars.com/api/?name=$orgName&background=random';
+    if (data.organization?.logo != null) {
+      final logo = data.organization!.logo!;
+      avatarUrl = logo.startsWith('http') 
+          ? logo 
+          : '${ApiConstants.storageUrl}/$logo';
+    }
 
-            const SizedBox(height: 8),
+    String? bannerUrl;
+    if (data.foto != null) {
+      bannerUrl = data.foto!.startsWith('http') 
+          ? data.foto 
+          : '${ApiConstants.storageUrl}/${data.foto}';
+    }
 
-            // 🔥 DESKRIPSI
-            Text(
-              data.deskripsi,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            const SizedBox(height: 12),
-
-            // 🔥 LOKASI (CLICKABLE)
-            GestureDetector(
-              onTap: isActive ? _openMap : null,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 16,
-                    color: isActive ? Colors.green : Colors.grey,
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      data.lokasi,
-                      style: TextStyle(
-                        color: isActive ? Colors.green : Colors.grey,
-                        decoration: isActive
-                            ? TextDecoration.underline
-                            : TextDecoration.none,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 6),
-
-            Text("🗓 ${data.tanggalMulai}"),
-            Text("👥 Kuota: ${data.kuota}"),
-            Text("🌐 $tipe"),
-
-            const SizedBox(height: 12),
-
-            // 🔥 STATUS + APPLY BUTTON
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 🔥 IG HEADER
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: data.status == 'open'
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    data.status.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: data.status == 'open'
-                          ? Colors.green
-                          : Colors.red,
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.grey[100],
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: avatarUrl,
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-
-                ElevatedButton(
-                  onPressed: data.status == 'open'
-                      ? () {
-                          Get.toNamed('/apply', arguments: data.id);
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    disabledBackgroundColor: Colors.grey,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(
-                    data.status == 'open'
-                        ? "Daftar"
-                        : "Ditutup",
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        orgName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.black,
+                        ),
+                      ),
+                      if (data.lokasi.isNotEmpty)
+                        GestureDetector(
+                          onTap: isActive ? _openMap : null,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                size: 12,
+                                color: Colors.black.withOpacity(0.6),
+                              ),
+                              const SizedBox(width: 2),
+                              Expanded(
+                                child: Text(
+                                  data.lokasi,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.black.withOpacity(0.8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
             ),
+          ),
 
-            if (isActive)
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  "📌 Lokasi tersedia",
-                  style: TextStyle(fontSize: 12),
+          // 🔥 IG IMAGE
+          if (bannerUrl != null)
+            GestureDetector(
+              onTap: () => Get.toNamed('/opportunityDetail', arguments: data),
+              child: CachedNetworkImage(
+                imageUrl: bannerUrl,
+                width: double.infinity,
+                fit: BoxFit.fitWidth,
+                placeholder: (context, url) => Container(
+                  height: 250,
+                  color: Colors.grey[100],
+                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
               ),
-          ],
-        ),
+            ),
+
+          // 🔥 CTA BUTTON (Instagram Ad Style)
+          if (data.status == 'open' && applyStatus == null)
+            InkWell(
+              onTap: () => Get.toNamed('/apply', arguments: data.id),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                color: const Color(0xFF006C49), // Warna primer
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Daftar Sekarang",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, color: Colors.white, size: 18),
+                  ],
+                ),
+              ),
+            ),
+
+          // 🔥 IG ACTIONS
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                LikeWidget(opportunityId: data.id),
+                const SizedBox(width: 16),
+                const Icon(Icons.chat_bubble_outline, size: 24),
+                const SizedBox(width: 16),
+                const Icon(Icons.send_outlined, size: 24),
+                const Spacer(),
+                const Icon(Icons.bookmark_border, size: 26),
+              ],
+            ),
+          ),
+
+          // 🔥 IG CAPTION & DETAILS
+          GestureDetector(
+            onTap: () => Get.toNamed('/opportunityDetail', arguments: data),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "1,234 likes",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  const SizedBox(height: 6),
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(color: Colors.black, fontSize: 13),
+                      children: [
+                        TextSpan(
+                          text: "$orgName ",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: "${data.judul}. ",
+                        ),
+                        TextSpan(
+                          text: data.deskripsi,
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  
+                  // Extra Info (Instagram Style)
+                  Row(
+                    children: [
+                      Text(
+                        "🗓 ${data.tanggalMulai}",
+                        style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "👥 ${data.kuota} Kuota",
+                        style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "🌐 $tipe",
+                        style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "View all 12 comments",
+                    style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "2 hours ago",
+                    style: TextStyle(color: Colors.grey[400], fontSize: 10),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }

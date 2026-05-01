@@ -1,38 +1,43 @@
+import 'package:frontend_final/data/repositories/application_repository.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/feed_model.dart';
-import '../../data/models/post_model.dart';
-import '../../data/models/opportunity_model.dart';
-import '../../data/repositories/post_repository.dart';
 import '../../data/repositories/opportunity_repository.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../core/services/storage_service.dart';
 
 class HomeController extends GetxController {
-  final postRepo = PostRepository();
   final opportunityRepo = OpportunityRepository();
   final authRepo = AuthRepository();
   final storage = StorageService();
+  final applicationRepo = ApplicationRepository();
 
+  var applicationMap = <int, String>{}.obs;
   var feeds = <FeedModel>[].obs;
   var isLoading = false.obs;
 
   @override
   void onInit() {
+    loadApplicationStatus();
     fetchFeeds();
     super.onInit();
+  }
+
+  Future<void> loadApplicationStatus() async {
+    final list = await applicationRepo.getMyApplications();
+
+    for (var app in list) {
+      applicationMap[app.opportunityId] = app.status;
+    }
   }
 
   Future<void> fetchFeeds() async {
     try {
       isLoading.value = true;
 
-      final posts = await postRepo.getAll();
       final opportunities = await opportunityRepo.getAll();
 
       List<FeedModel> temp = [];
-
-      temp.addAll(posts.map((e) => FeedModel(type: FeedType.post, data: e)));
 
       temp.addAll(
         opportunities.map(
