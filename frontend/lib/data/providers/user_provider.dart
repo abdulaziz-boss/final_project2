@@ -1,15 +1,26 @@
 import 'package:dio/dio.dart';
+import '../../core/services/api_service.dart';
 
 class UserProvider {
-  final Dio dio = Dio();
-
-  final String baseUrl = "http://YOUR_API_URL/api";
+  final ApiService _api = ApiService();
 
   Future<Response> getUserProfile(int id) async {
-    return await dio.get('$baseUrl/users/$id');
+    return await _api.dio.get('/users/$id');
   }
 
-  Future<Response> updateProfile(int id, Map<String, dynamic> data) async {
-    return await dio.put('$baseUrl/users/$id', data: data);
+  Future<Response> toggleFollow(int id) async {
+    return await _api.dio.post('/users/$id/follow');
+  }
+
+  Future<Response> checkFollowStatus(int id) async {
+    return await _api.dio.get('/users/$id/follow-status');
+  }
+
+  Future<Response> updateProfile(int id, dynamic data) async {
+    return await _api.dio.post('/users/$id', data: data); // Usually POST for multipart
+  }
+
+  Future<Response> requestUpgrade(Map<String, dynamic> data) async {
+    return await _api.dio.post('/organization', data: data);
   }
 }

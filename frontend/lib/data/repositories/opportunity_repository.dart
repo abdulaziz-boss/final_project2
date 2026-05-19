@@ -28,4 +28,20 @@ class OpportunityRepository {
       return [];
     } 
   }
+
+  Future<Map<String, dynamic>> createOpportunity(dynamic formData) async {
+    final res = await provider.createOpportunity(formData);
+    return res.data;
+  }
+
+  Future<List<Map<String, dynamic>>> getCategories() async {
+    try {
+      final res = await provider.getCategories();
+      final data = res.data['data'] as List;
+      return data.map((e) => e as Map<String, dynamic>).toList();
+    } catch (e) {
+      print("ERROR OPPORTUNITY REPO GET CATEGORIES: $e");
+      return [];
+    }
+  }
 }

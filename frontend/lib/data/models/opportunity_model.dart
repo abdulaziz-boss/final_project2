@@ -20,6 +20,9 @@ class OpportunityModel {
 
   final String? mapsUrl;
   final String? foto;
+  final int likesCount;
+  final int commentsCount;
+
 
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -45,6 +48,8 @@ class OpportunityModel {
     this.updatedAt,
     this.creator,
     this.organization,
+    this.likesCount = 0,
+    this.commentsCount = 0,
   });
 
   factory OpportunityModel.fromJson(Map<String, dynamic> json) {
@@ -85,6 +90,8 @@ class OpportunityModel {
       organization: json['organization'] != null
           ? OrganizationModel.fromJson(json['organization'])
           : null,
+      likesCount: json['likes_count'] ?? 0,
+      commentsCount: json['comments_count'] ?? 0,
     );
   }
 }

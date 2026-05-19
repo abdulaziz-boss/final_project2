@@ -9,14 +9,22 @@ class CommentRepository {
     try {
       final res = await provider.getComments(opportunityId, page: page);
       final dynamic responseData = res.data;
+      print("DEBUG COMMENT REPO: Raw Response for ID $opportunityId -> $responseData");
 
       List? listData;
 
       if (responseData is List) {
         listData = responseData;
       } else if (responseData is Map && responseData['data'] != null) {
-        listData = responseData['data'];
+        final dataField = responseData['data'];
+        if (dataField is List) {
+          listData = dataField;
+        } else if (dataField is Map && dataField['data'] != null && dataField['data'] is List) {
+          listData = dataField['data'];
+        }
       }
+
+      print("DEBUG COMMENT REPO: Parsed List Data Length -> ${listData?.length ?? 0}");
 
       if (listData == null) {
         print("COMMENT REPO: Format data tidak dikenali. Response: $responseData");
@@ -31,21 +39,26 @@ class CommentRepository {
   }
 
   // 🔥 CREATE COMMENT
-  Future<bool> createComment({
+  Future<CommentModel?> createComment({
     required int opportunityId,
     required String comment,
     int? parentId,
   }) async {
     try {
-      await provider.createComment(
+      final res = await provider.createComment(
         opportunityId: opportunityId,
         comment: comment,
         parentId: parentId,
       );
-      return true;
+      
+      final data = res.data['data'];
+      if (data != null) {
+        return CommentModel.fromJson(data);
+      }
+      return null;
     } catch (e) {
       print("ERROR CREATE COMMENT: $e");
-      return false;
+      return null;
     }
   }
 }

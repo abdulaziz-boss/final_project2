@@ -4,19 +4,28 @@ import '../providers/user_provider.dart';
 class UserRepository {
   final UserProvider provider = UserProvider();
 
-  Future<UserModel> getUserProfile(int id) async {
+  Future<Map<String, dynamic>> getUserProfile(int id) async {
     final response = await provider.getUserProfile(id);
-
-    final data = response.data['data']; // sesuaikan API kamu
-
-    return UserModel.fromJson(data);
+    return response.data['data']; // Returns ['user': UserModel, 'opportunities': List]
   }
 
-  Future<UserModel> updateProfile(int id, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> toggleFollow(int id) async {
+    final response = await provider.toggleFollow(id);
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> checkFollowStatus(int id) async {
+    final response = await provider.checkFollowStatus(id);
+    return response.data;
+  }
+
+  Future<UserModel> updateProfile(int id, dynamic data) async {
     final response = await provider.updateProfile(id, data);
+    return UserModel.fromJson(response.data['data']);
+  }
 
-    final result = response.data['data'];
-
-    return UserModel.fromJson(result);
+  Future<Map<String, dynamic>> requestUpgrade(Map<String, dynamic> data) async {
+    final response = await provider.requestUpgrade(data);
+    return response.data;
   }
 }

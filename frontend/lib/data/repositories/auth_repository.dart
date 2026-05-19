@@ -24,7 +24,14 @@ class AuthRepository {
         return false;
       }
 
-      await storage.saveToken(token);
+      final userData = data['data']?['user'] ?? data['user'];
+      final userRole = userData?['role'] ?? 'user';
+
+      await storage.saveUserData(
+        token: token,
+        role: userRole,
+        user: userData,
+      );
       return true;
     } on DioException catch (e) {
       print("LOGIN DIO ERROR: ${e.response?.data ?? e.message}");
@@ -78,7 +85,14 @@ class AuthRepository {
         return false;
       }
 
-      await storage.saveToken(token);
+      final userData = data['data']?['user'] ?? data['user'];
+      final userRole = userData?['role'] ?? 'user';
+
+      await storage.saveUserData(
+        token: token,
+        role: userRole,
+        user: userData,
+      );
       return true;
     } on DioException catch (e) {
       print("GOOGLE LOGIN DIO ERROR: ${e.response?.data ?? e.message}");

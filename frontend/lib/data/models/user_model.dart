@@ -7,8 +7,11 @@ class UserModel {
   final bool isVerified;
   final String? googleId;
   final String? fotoProfil;
+  final String? fotoProfilUrl;
   final String? bio;
   final String? lokasi;
+  final int followersCount;
+  final int followingsCount;
 
   UserModel({
     required this.id,
@@ -19,8 +22,11 @@ class UserModel {
     required this.isVerified,
     this.googleId,
     this.fotoProfil,
+    this.fotoProfilUrl,
     this.bio,
     this.lokasi,
+    this.followersCount = 0,
+    this.followingsCount = 0,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -33,8 +39,11 @@ class UserModel {
       isVerified: json['is_verified'] == 1 || json['is_verified'] == true,
       googleId: json['google_id'],
       fotoProfil: json['foto_profil'],
+      fotoProfilUrl: json['foto_profil_url'],
       bio: json['bio'],
       lokasi: json['lokasi'],
+      followersCount: json['followers_count'] ?? 0,
+      followingsCount: json['followings_count'] ?? 0,
     );
   }
 

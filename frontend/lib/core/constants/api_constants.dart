@@ -1,9 +1,17 @@
+import 'package:flutter/foundation.dart';
+
 class ApiConstants {
   // Jika di Web (Chrome), gunakan localhost. Jika di HP, gunakan IP Laptop.
-  static const String host = "http://192.168.43.73:8000";
+  static String get host {
+    if (kIsWeb) {
+      return "http://localhost:8000";
+    } else {
+      return "http://192.168.0.100:8000";
+    }
+  }
 
-  static const String baseUrl = "$host/api/";
-  static const String storageUrl = "$host/storage";
+  static String get baseUrl => "$host/api/";
+  static String get storageUrl => "$host/storage";
 
   // AUTH
   static const String login = "auth/login";
@@ -21,7 +29,7 @@ class ApiConstants {
   static const String applications = "applications";
 
   // CHAT
-  static const String conversations = "conversations";
+  static const String conversations = "chats";
   static const String messages = "messages";
 
   // NOTIFICATION

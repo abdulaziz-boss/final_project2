@@ -237,23 +237,52 @@ class OpportunityDetailView extends GetView<OpportunityDetailController> {
             )
           ],
         ),
-        child: ElevatedButton(
-          onPressed: data.status == 'open' 
-              ? () => Get.toNamed('/apply', arguments: data.id)
-              : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF006C49),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+        child: Row(
+          children: [
+            // 🔥 CHAT BUTTON
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: IconButton(
+                onPressed: () => controller.startChat(),
+                icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF006C49)),
+              ),
             ),
-            elevation: 0,
-          ),
-          child: Text(
-            data.status == 'open' ? "Daftar Sekarang" : "Pendaftaran Ditutup",
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+            const SizedBox(width: 16),
+            
+            // 🔥 APPLY BUTTON
+            Expanded(
+              child: ElevatedButton(
+                onPressed: data.status == 'open' 
+                    ? () => Get.toNamed('/apply', arguments: data.id)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF006C49),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+                child: Obx(() => controller.isLoading.value 
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : Text(
+                      data.status == 'open' ? "Daftar Sekarang" : "Pendaftaran Ditutup",
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

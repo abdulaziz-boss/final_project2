@@ -18,6 +18,12 @@ class LikeWidget extends StatelessWidget {
     }
 
     final controller = Get.find<LikeController>(tag: tag);
+    
+    // 🔥 Paksa refresh status like saat widget muncul
+    // Penting saat ganti akun agar statusnya tidak nyangkut
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.loadLikeStatus();
+    });
 
     return Obx(() => Row(
           mainAxisSize: MainAxisSize.min,

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../inbox/inbox_controller.dart';
 import '../../../data/models/opportunity_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../shared/like/like_widget.dart';
+import '../../shared/comment/comment_widget.dart';
+import '../../shared/comment/comment_input.dart';
+import '../../shared/comment/comment_count_widget.dart';
 
 class OpportunityCard extends StatelessWidget {
   final OpportunityModel data;
@@ -23,24 +27,76 @@ class OpportunityCard extends StatelessWidget {
     }
   }
 
+  void _showCommentSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const Text(
+                "Komentar",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+              const SizedBox(height: 8),
+              const Divider(height: 1),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: CommentWidget(opportunityId: data.id),
+                  ),
+                ),
+              ),
+              CommentInput(opportunityId: data.id),
+              SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final tipe = data.tipe == 'online' ? 'Online' : 'Offline';
     final isActive = data.mapsUrl != null && data.mapsUrl!.isNotEmpty;
-    final orgName = data.organization?.namaOrganisasi ?? "Penyelenggara";
+    final posterName = data.creator?.name ?? data.organization?.namaOrganisasi ?? "Penyelenggara";
 
-    String avatarUrl = 'https://ui-avatars.com/api/?name=$orgName&background=random';
-    if (data.organization?.logo != null) {
+    String avatarUrl =
+        'https://ui-avatars.com/api/?name=$posterName&background=random';
+    if (data.creator?.fotoProfilUrl != null && data.creator!.fotoProfilUrl!.isNotEmpty) {
+      avatarUrl = data.creator!.fotoProfilUrl!;
+    } else if (data.organization?.logo != null) {
       final logo = data.organization!.logo!;
-      avatarUrl = logo.startsWith('http') 
-          ? logo 
+      avatarUrl = logo.startsWith('http')
+          ? logo
           : '${ApiConstants.storageUrl}/$logo';
     }
 
     String? bannerUrl;
     if (data.foto != null) {
-      bannerUrl = data.foto!.startsWith('http') 
-          ? data.foto 
+      bannerUrl = data.foto!.startsWith('http')
+          ? data.foto
           : '${ApiConstants.storageUrl}/${data.foto}';
     }
 
@@ -73,13 +129,24 @@ class OpportunityCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        orgName,
+                        posterName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                           color: Colors.black,
                         ),
                       ),
+                      if (data.organization?.namaOrganisasi != null) ...[
+                        const SizedBox(height: 1),
+                        Text(
+                          data.organization!.namaOrganisasi,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.black.withOpacity(0.55),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                       if (data.lokasi.isNotEmpty)
                         GestureDetector(
                           onTap: isActive ? _openMap : null,
@@ -123,47 +190,59 @@ class OpportunityCard extends StatelessWidget {
                 placeholder: (context, url) => Container(
                   height: 250,
                   color: Colors.grey[100],
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  child: const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
                 ),
               ),
             ),
 
-          // 🔥 CTA BUTTON (Instagram Ad Style)
-          if (data.status == 'open' && applyStatus == null)
-            InkWell(
-              onTap: () => Get.toNamed('/apply', arguments: data.id),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                color: const Color(0xFF006C49), // Warna primer
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Daftar Sekarang",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                    Icon(Icons.chevron_right, color: Colors.white, size: 18),
-                  ],
-                ),
-              ),
-            ),
-
-          // 🔥 IG ACTIONS
+          // 🔥 IG ACTIONS (Like, Comment, Share, Apply, Bookmark)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
                 LikeWidget(opportunityId: data.id),
                 const SizedBox(width: 16),
-                const Icon(Icons.chat_bubble_outline, size: 24),
+                GestureDetector(
+                  onTap: () => _showCommentSheet(context),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.chat_bubble_outline, size: 24),
+                      CommentCountWidget(
+                        opportunityId: data.id,
+                        initialCount: data.commentsCount,
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(width: 16),
-                const Icon(Icons.send_outlined, size: 24),
+                InkWell(
+                  onTap: () {
+                    Get.find<InboxController>().showShareSheet(data);
+                  },
+                  child: const Icon(Icons.send_outlined, size: 24),
+                ),
                 const Spacer(),
+                if (data.status == 'open' && applyStatus == null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: TextButton(
+                      onPressed: () => Get.toNamed('/apply', arguments: data.id),
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFF006C49),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text(
+                        "Daftar Sekarang",
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
                 const Icon(Icons.bookmark_border, size: 26),
               ],
             ),
@@ -177,22 +256,15 @@ class OpportunityCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "1,234 likes",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                  ),
-                  const SizedBox(height: 6),
                   RichText(
                     text: TextSpan(
                       style: const TextStyle(color: Colors.black, fontSize: 13),
                       children: [
                         TextSpan(
-                          text: "$orgName ",
+                          text: "$posterName ",
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        TextSpan(
-                          text: "${data.judul}. ",
-                        ),
+                        TextSpan(text: "${data.judul}. "),
                         TextSpan(
                           text: data.deskripsi,
                           style: TextStyle(color: Colors.grey[600]),
@@ -203,7 +275,7 @@ class OpportunityCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
-                  
+
                   // Extra Info (Instagram Style)
                   Row(
                     children: [
@@ -222,11 +294,6 @@ class OpportunityCard extends StatelessWidget {
                         style: TextStyle(color: Colors.grey[500], fontSize: 11),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "View all 12 comments",
-                    style: TextStyle(color: Colors.grey[500], fontSize: 13),
                   ),
                   const SizedBox(height: 4),
                   Text(

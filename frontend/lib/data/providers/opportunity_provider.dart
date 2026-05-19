@@ -8,4 +8,12 @@ class OpportunityProvider {
   Future<Response> getAll() async {
     return await api.dio.get(ApiConstants.opportunities);
   }
+
+  Future<Response> createOpportunity(FormData data) async {
+    return await api.dio.post(ApiConstants.opportunities, data: data);
+  }
+
+  Future<Response> getCategories() async {
+    return await api.dio.get('categories');
+  }
 }

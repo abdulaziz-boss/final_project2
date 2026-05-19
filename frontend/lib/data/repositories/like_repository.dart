@@ -24,13 +24,20 @@ class LikeRepository {
   }
 
   // 🔥 TOGGLE LIKE
-  Future<bool> toggleLike(int opportunityId) async {
+  Future<Map<String, dynamic>?> toggleLike(int opportunityId) async {
     try {
-      await provider.toggleLike(opportunityId);
-      return true;
+      final res = await provider.toggleLike(opportunityId);
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        return {
+          'is_liked': data['is_liked'] ?? false,
+          'total': data['total'] ?? 0,
+        };
+      }
+      return null;
     } catch (e) {
       print("ERROR TOGGLE LIKE: $e");
-      return false;
+      return null;
     }
   }
 }

@@ -12,6 +12,8 @@ import '../modules/opportunity/detail/opportunity_detail_view.dart';
 import '../modules/opportunity/detail/opportunity_detail_binding.dart';
 import '../modules/opportunity/apply/apply_binding.dart';
 import '../modules/opportunity/apply/apply_view.dart';
+import '../modules/inbox/chat/chat_view.dart';
+import '../modules/inbox/inbox_binding.dart';
 
 class AppPages {
   static final pages = [
@@ -65,6 +67,15 @@ class AppPages {
       name: '/apply',
       page: () => const ApplyView(),
       binding: ApplyBinding(),
+    ),
+
+    GetPage(
+      name: '/chat',
+      page: () {
+        final conversationId = Get.arguments as int;
+        return ChatView(conversationId: conversationId);
+      },
+      binding: InboxBinding(),
     ),
     
   ];

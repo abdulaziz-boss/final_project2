@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'home_controller.dart';
+import '../main_nav/main_nav_controller.dart';
+import '../inbox/inbox_controller.dart';
 import '../opportunity/widgets/opportunity_card.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -35,7 +37,12 @@ class HomeView extends GetView<HomeController> {
               Icons.notifications_outlined,
               color: Color(0xFF475569),
             ),
-            onPressed: () {},
+            onPressed: () {
+              // 1. Pindah ke Tab Inbox (Index 2)
+              Get.find<MainNavController>().changeIndex(2);
+              // 2. Pindah ke Sub-Tab Aktivitas (Index 1)
+              Get.find<InboxController>().changeTab(1);
+            },
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: Color(0xFF475569)),

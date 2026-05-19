@@ -39,9 +39,13 @@ class LikeController extends GetxController {
     if (totalLikes.value < 0) totalLikes.value = 0;
 
     // Kirim ke server
-    final success = await _repo.toggleLike(opportunityId);
+    final data = await _repo.toggleLike(opportunityId);
 
-    if (!success) {
+    if (data != null) {
+      // Sinkronkan dengan data asli dari server
+      isLiked.value = data['is_liked'] ?? false;
+      totalLikes.value = data['total'] ?? 0;
+    } else {
       // Rollback jika gagal
       isLiked.value = oldLiked;
       totalLikes.value = oldTotal;

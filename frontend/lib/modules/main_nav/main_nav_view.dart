@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 
 import '../home/home_view.dart';
 import '../discover/discover_view.dart';
-// import '../inbox/inbox_view.dart';
-// import '../profile/profile_view.dart';
+import '../inbox/inbox_view.dart';
+import '../profile/views/profile_view.dart';
 
 import 'main_nav_controller.dart';
 
@@ -13,11 +13,11 @@ class MainNavView extends GetView<MainNavController> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = const [
-      HomeView(),
-      DiscoverView(),
-      // InboxView(),
-      // ProfileView(),
+    final pages = [
+      const HomeView(),
+      const DiscoverView(),
+      Inboxpage(),
+      const ProfileView(),
     ];
 
     return Obx(() => Scaffold(

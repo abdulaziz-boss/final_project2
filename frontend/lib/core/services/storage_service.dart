@@ -18,13 +18,26 @@ class StorageService {
   Future<void> clearToken() async {
     await box.remove('token');
     await box.remove('role');
+    await box.remove('user_data');
   }
+
+  Future<void> logout() => clearToken();
 
   Future<void> saveUserData({
     required String token,
     required String role,
+    Map<String, dynamic>? user,
   }) async {
     await box.write('token', token);
     await box.write('role', role);
+    if (user != null) {
+      await box.write('user_data', user);
+    }
   }
+
+  Map<String, dynamic>? getUserData() {
+    return box.read('user_data');
+  }
+
+  Future<Map<String, dynamic>?> getUser() async => getUserData();
 }
