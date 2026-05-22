@@ -7,6 +7,7 @@ import '../inbox/inbox_view.dart';
 import '../profile/views/profile_view.dart';
 
 import 'main_nav_controller.dart';
+import '../inbox/inbox_controller.dart';
 
 class MainNavView extends GetView<MainNavController> {
   const MainNavView({super.key});
@@ -32,20 +33,36 @@ class MainNavView extends GetView<MainNavController> {
             selectedItemColor: const Color(0xFF006C49),
             type: BottomNavigationBarType.fixed,
 
-            items: const [
-              BottomNavigationBarItem(
+            items: [
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.home),
                 label: "Home",
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.explore),
                 label: "Discover",
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.chat_bubble_outline),
+                icon: Obx(() {
+                  if (Get.isRegistered<InboxController>()) {
+                    final inboxCtrl = Get.find<InboxController>();
+                    final unreadCount = inboxCtrl.unreadNotificationsCount + inboxCtrl.unreadMessagesCount;
+                    if (unreadCount > 0) {
+                      return Badge(
+                        label: Text(
+                          unreadCount > 99 ? '99+' : unreadCount.toString(),
+                          style: const TextStyle(color: Colors.white, fontSize: 10),
+                        ),
+                        backgroundColor: Colors.red,
+                        child: const Icon(Icons.chat_bubble_outline),
+                      );
+                    }
+                  }
+                  return const Icon(Icons.chat_bubble_outline);
+                }),
                 label: "Inbox",
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),
                 label: "Profile",
               ),

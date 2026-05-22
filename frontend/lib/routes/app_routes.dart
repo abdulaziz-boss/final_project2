@@ -3,6 +3,6 @@ abstract class Routes {
   static const home = '/home';
   static const register = '/register';
   static const main = '/main';
-  static const opportunityDetail = '/opportunity-detail';
+  static const opportunityDetail = '/opportunityDetail';
   static const apply = '/apply';
 }

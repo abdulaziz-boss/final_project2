@@ -20,6 +20,11 @@ class NotificationRepository {
     await provider.markAsRead(notificationId);
   }
 
+  // Tandai semua sudah dibaca
+  Future<void> markAllAsRead() async {
+    await provider.markAllAsRead();
+  }
+
   // Hapus notifikasi
   Future<void> deleteNotification(int notificationId) async {
     await provider.deleteNotification(notificationId);

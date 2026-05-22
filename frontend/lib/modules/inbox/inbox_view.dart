@@ -58,7 +58,7 @@ class Inboxpage extends GetView<InboxController> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: const Row(
         children: [
-          Icon(Icons.volunteer_activism, color: Color(0xFF047857), size: 24),
+          Icon(Icons.volunteer_activism, color: Color(0xFF047857), size: 28),
           SizedBox(width: 12),
           Text(
             'ZAKKAL.APL',
@@ -87,14 +87,14 @@ class Inboxpage extends GetView<InboxController> {
           ),
           child: Row(
             children: [
-              _buildTabButton(0, 'Pesan'),
-              _buildTabButton(1, 'Aktivitas'),
+              _buildTabButton(0, 'Pesan', controller.unreadMessagesCount > 0, controller.unreadMessagesCount),
+              _buildTabButton(1, 'Aktivitas', controller.unreadNotificationsCount > 0, controller.unreadNotificationsCount),
             ],
           ),
         ));
   }
 
-  Widget _buildTabButton(int index, String label) {
+  Widget _buildTabButton(int index, String label, bool showBadge, int badgeCount) {
     final isSelected = controller.selectedTab.value == index;
     return Expanded(
       child: GestureDetector(
@@ -107,13 +107,32 @@ class Inboxpage extends GetView<InboxController> {
             ),
           ),
           child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? const Color(0xFF006C49) : const Color(0xFF3C4A42),
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? const Color(0xFF006C49) : const Color(0xFF3C4A42),
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+                if (showBadge) ...[
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      badgeCount > 99 ? '99+' : badgeCount.toString(),
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ),
@@ -177,6 +196,7 @@ class Inboxpage extends GetView<InboxController> {
                 lastMessage: conversation.lastMessage ?? '',
                 time: _formatTime(conversation.lastMessageTime),
                 photoUrl: controller.getOtherUserPhoto(conversation),
+                unreadCount: conversation.unreadCount,
                 onTap: () => Get.toNamed('/chat', arguments: conversation.id),
               );
             },

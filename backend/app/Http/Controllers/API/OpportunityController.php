@@ -19,12 +19,28 @@ class OpportunityController extends Controller
     /**
      * 1. Menampilkan semua lowongan (Status Open)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $opportunities = Opportunity::with(['creator.organization', 'organization', 'categories'])
+        $query = Opportunity::with(['creator.organization', 'organization', 'categories'])
             ->withCount(['likes', 'comments'])
-            ->where('status', 'open')
-            ->latest()
+            ->where('status', 'open');
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('judul', 'like', '%' . $search . '%')
+                  ->orWhere('deskripsi', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->has('category_id') && $request->category_id != '') {
+            $categoryId = $request->category_id;
+            $query->whereHas('categories', function ($q) use ($categoryId) {
+                $q->where('categories.id', $categoryId);
+            });
+        }
+
+        $opportunities = $query->latest()
             ->get()
             ->map(function ($item) {
                 // Menambahkan field 'total' agar sama dengan respon saat klik like
@@ -91,9 +107,9 @@ class OpportunityController extends Controller
                 $opportunity->categories()->sync($request->categories);
             }
 
-            return response()->json(['success' => true, 'message' => 'Lowongan berhasil dibuat', 'data' => $opportunity], 201);
+            return response()->json(['success' => true, 'message' => 'Kegiatan berhasil dibuat', 'data' => $opportunity], 201);
         } catch (Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal membuat lowongan', 'error' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Gagal membuat kegiatan', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -146,7 +162,7 @@ class OpportunityController extends Controller
             $opportunity->categories()->sync($request->categories);
         }
 
-        return response()->json(['success' => true, 'message' => 'Lowongan berhasil diupdate']);
+        return response()->json(['success' => true, 'message' => 'Kegiatan berhasil diupdate']);
     }
 
     /**
@@ -164,7 +180,7 @@ class OpportunityController extends Controller
         }
 
         $opportunity->delete();
-        return response()->json(['success' => true, 'message' => 'Lowongan berhasil dihapus']);
+        return response()->json(['success' => true, 'message' => 'Kegiatan berhasil dihapus']);
     }
 
     /**
@@ -194,7 +210,7 @@ class OpportunityController extends Controller
                 Notification::create([
                     'user_id' => $opportunity->created_by,
                     'judul'   => 'Like Baru!',
-                    'isi'     => Auth::user()->name . ' menyukai lowongan: ' . $opportunity->judul,
+                    'isi'     => Auth::user()->name . ' menyukai kegiatan: ' . $opportunity->judul,
                     'is_read' => false
                 ]);
             }
@@ -233,7 +249,7 @@ class OpportunityController extends Controller
                 Notification::create([
                     'user_id' => $opportunity->created_by,
                     'judul'   => 'Komentar Baru!',
-                    'isi'     => Auth::user()->name . ' berkomentar di lowongan: ' . $opportunity->judul,
+                    'isi'     => Auth::user()->name . ' berkomentar di kegiatan: ' . $opportunity->judul,
                     'is_read' => false
                 ]);
             }

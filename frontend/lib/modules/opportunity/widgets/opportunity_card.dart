@@ -9,6 +9,7 @@ import '../../shared/like/like_widget.dart';
 import '../../shared/comment/comment_widget.dart';
 import '../../shared/comment/comment_input.dart';
 import '../../shared/comment/comment_count_widget.dart';
+import '../controllers/opportunity_controller.dart';
 
 class OpportunityCard extends StatelessWidget {
   final OpportunityModel data;
@@ -81,6 +82,7 @@ class OpportunityCard extends StatelessWidget {
     final tipe = data.tipe == 'online' ? 'Online' : 'Offline';
     final isActive = data.mapsUrl != null && data.mapsUrl!.isNotEmpty;
     final posterName = data.creator?.name ?? data.organization?.namaOrganisasi ?? "Penyelenggara";
+    final opportunityController = Get.find<OpportunityController>();
 
     String avatarUrl =
         'https://ui-avatars.com/api/?name=$posterName&background=random';
@@ -228,7 +230,19 @@ class OpportunityCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 12),
                     child: TextButton(
-                      onPressed: () => Get.toNamed('/apply', arguments: data.id),
+                      onPressed: () {
+                        if (opportunityController.userRole.value == 'admin') {
+                          Get.toNamed(
+                            '/participants',
+                            arguments: data.id,
+                          );
+                        } else {
+                          Get.toNamed(
+                            '/apply',
+                            arguments: data.id,
+                          );
+                        }
+                      },
                       style: TextButton.styleFrom(
                         backgroundColor: const Color(0xFF006C49),
                         foregroundColor: Colors.white,
@@ -237,10 +251,15 @@ class OpportunityCard extends StatelessWidget {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text(
-                        "Daftar Sekarang",
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
+                      child: Obx(() => Text(
+                        opportunityController.userRole.value == 'admin'
+                            ? 'Lihat Partisipan'
+                            : 'Daftar Sekarang',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )),
                     ),
                   ),
                 const Icon(Icons.bookmark_border, size: 26),
@@ -275,7 +294,17 @@ class OpportunityCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
-
+                  
+                  // 🔥 IG "View all X comments"
+                  GestureDetector(
+                    onTap: () => _showCommentSheet(context),
+                    child: CommentCountWidget(
+                      opportunityId: data.id,
+                      initialCount: data.commentsCount,
+                      isTextFormat: true,
+                    ),
+                  ),
+                  
                   // Extra Info (Instagram Style)
                   Row(
                     children: [

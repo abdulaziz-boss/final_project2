@@ -13,11 +13,6 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    // Pastikan controller diinisialisasi jika diakses lewat navigasi langsung
-    if (!Get.isRegistered<ProfileController>()) {
-      Get.put(ProfileController());
-    }
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -52,14 +47,12 @@ class ProfileView extends GetView<ProfileController> {
         ],
       ),
       body: Obx(() {
-        if (controller.isLoading.value && controller.user.value == null) {
+        // loading awal
+        if (controller.user.value == null) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final user = controller.user.value;
-        if (user == null) {
-          return const Center(child: Text("Data tidak ditemukan"));
-        }
+        final user = controller.user.value!;
 
         final isAdmin = user.role == 'admin' || user.role == 'super_admin';
 
@@ -87,7 +80,10 @@ class ProfileView extends GetView<ProfileController> {
                             border: Border.all(color: Colors.white, width: 4),
                             color: const Color(0xFFE7E8E9),
                             image: DecorationImage(
-                              image: CachedNetworkImageProvider(user.fotoProfilUrl ?? 'https://ui-avatars.com/api/?name=${user.name}'),
+                              image: CachedNetworkImageProvider(
+                                user.fotoProfilUrl ??
+                                    'https://ui-avatars.com/api/?name=${user.name}',
+                              ),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -96,7 +92,11 @@ class ProfileView extends GetView<ProfileController> {
                           GestureDetector(
                             onTap: () async {
                               // Navigasi ke EditProfileView dengan data user
-                              final result = await Get.to(() => const EditProfileView(), arguments: user, binding: EditProfileBinding());
+                              final result = await Get.to(
+                                () => const EditProfileView(),
+                                arguments: user,
+                                binding: EditProfileBinding(),
+                              );
                               // Jika berhasil update, refresh profile
                               if (result == true) {
                                 controller.getProfile();
@@ -107,14 +107,24 @@ class ProfileView extends GetView<ProfileController> {
                               decoration: BoxDecoration(
                                 color: const Color(0xFF006C49),
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
                               ),
-                              child: const Icon(Icons.edit, color: Colors.white, size: 16),
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                             ),
                           )
                         else if (user.isVerified)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFF316BF3),
                               borderRadius: BorderRadius.circular(12),
@@ -123,9 +133,20 @@ class ProfileView extends GetView<ProfileController> {
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.verified, color: Colors.white, size: 12),
+                                Icon(
+                                  Icons.verified,
+                                  color: Colors.white,
+                                  size: 12,
+                                ),
                                 SizedBox(width: 4),
-                                Text('VERIFIED', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                Text(
+                                  'VERIFIED',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -138,42 +159,37 @@ class ProfileView extends GetView<ProfileController> {
                         children: [
                           Text(
                             user.name,
-                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF191C1D)),
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF191C1D),
+                            ),
                           ),
                           Text(
                             '@${user.username}',
-                            style: const TextStyle(fontSize: 14, color: Color(0xFF0051D5)),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF0051D5),
+                            ),
                           ),
                           const SizedBox(height: 10),
                           // Stats row (IG Style)
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               _buildStatItem(
-                                  isAdmin ? controller.opportunities.length.toString() : '0', 
-                                  isAdmin ? 'Postingan' : 'Aktivitas'
+                                isAdmin
+                                    ? controller.opportunities.length.toString()
+                                    : '0',
+                                isAdmin ? 'Postingan' : 'Aktivitas',
                               ),
-                              _buildStatItem(controller.followersCount.value.toString(), 'Pengikut'),
-                              _buildStatItem(controller.followingsCount.value.toString(), 'Mengikuti'),
                             ],
                           ),
                           const SizedBox(height: 12),
-                          // Action Buttons (Follow / Chat / Upgrade)
+                          // Action Buttons (Chat / Upgrade)
                           Row(
                             children: [
                               if (!controller.isCurrentUser.value) ...[
-                                Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: controller.isFollowing.value ? const Color(0xFFE1E3E4) : const Color(0xFF006C49),
-                                      foregroundColor: controller.isFollowing.value ? const Color(0xFF191C1D) : Colors.white,
-                                      elevation: 0,
-                                    ),
-                                    onPressed: controller.toggleFollow,
-                                    child: Text(controller.isFollowing.value ? 'Mengikuti' : 'Ikuti'),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
                                 Expanded(
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
@@ -197,7 +213,7 @@ class ProfileView extends GetView<ProfileController> {
                                     child: const Text('Upgrade Premium'),
                                   ),
                                 ),
-                              ]
+                              ],
                             ],
                           ),
                         ],
@@ -205,16 +221,19 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Bio / Deskripsi
                 if (user.bio != null && user.bio!.isNotEmpty)
                   Text(
                     user.bio!,
-                    style: const TextStyle(fontSize: 16, color: Color(0xFF3C4A42)),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF3C4A42),
+                    ),
                   ),
-                  
+
                 const SizedBox(height: 16),
 
                 // Konten Bawah (Postingan atau Placeholder)
@@ -224,7 +243,11 @@ class ProfileView extends GetView<ProfileController> {
                     children: [
                       const Text(
                         'Postingan Kegiatan',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF191C1D)),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF191C1D),
+                        ),
                       ),
                       if (controller.isCurrentUser.value)
                         Container(
@@ -233,7 +256,10 @@ class ProfileView extends GetView<ProfileController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.add, color: Color(0xFF006C49)),
+                            icon: const Icon(
+                              Icons.add,
+                              color: Color(0xFF006C49),
+                            ),
                             onPressed: () async {
                               final result = await Get.to(
                                 () => const CreatePostView(),
@@ -252,19 +278,23 @@ class ProfileView extends GetView<ProfileController> {
                     const Center(
                       child: Padding(
                         padding: EdgeInsets.all(32.0),
-                        child: Text("Belum ada postingan.", style: TextStyle(color: Colors.grey)),
+                        child: Text(
+                          "Belum ada postingan.",
+                          style: TextStyle(color: Colors.grey),
+                        ),
                       ),
                     )
                   else
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 3,
-                        mainAxisSpacing: 3,
-                        childAspectRatio: 1.0,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 3,
+                            mainAxisSpacing: 3,
+                            childAspectRatio: 1.0,
+                          ),
                       itemCount: controller.opportunities.length,
                       itemBuilder: (context, index) {
                         final opp = controller.opportunities[index];
@@ -276,7 +306,8 @@ class ProfileView extends GetView<ProfileController> {
                         }
 
                         return GestureDetector(
-                          onTap: () => Get.toNamed('/opportunityDetail', arguments: opp),
+                          onTap: () =>
+                              Get.toNamed('/opportunityDetail', arguments: opp),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
@@ -288,17 +319,23 @@ class ProfileView extends GetView<ProfileController> {
                                   ? CachedNetworkImage(
                                       imageUrl: bannerUrl,
                                       fit: BoxFit.cover,
-                                      placeholder: (context, url) => const Center(
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        ),
-                                      ),
-                                      errorWidget: (context, url, error) => const Icon(Icons.broken_image),
+                                      placeholder: (context, url) =>
+                                          const Center(
+                                            child: SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            ),
+                                          ),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.broken_image),
                                     )
                                   : Container(
-                                      color: const Color(0xFF006C49).withOpacity(0.08),
+                                      color: const Color(
+                                        0xFF006C49,
+                                      ).withOpacity(0.08),
                                       child: const Center(
                                         child: Icon(
                                           Icons.volunteer_activism_outlined,
@@ -323,11 +360,18 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                     child: Column(
                       children: [
-                        const Icon(Icons.volunteer_activism_outlined, size: 64, color: Color(0xFF94A3B8)),
+                        const Icon(
+                          Icons.volunteer_activism_outlined,
+                          size: 64,
+                          color: Color(0xFF94A3B8),
+                        ),
                         const SizedBox(height: 16),
                         const Text(
                           'Mari Berkontribusi',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         const Text(

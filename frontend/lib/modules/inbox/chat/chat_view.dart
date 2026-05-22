@@ -23,15 +23,18 @@ class _ChatViewState extends State<ChatView> {
   @override
   void initState() {
     super.initState();
-    // Panggil data setelah frame pertama untuk menghindari konflik animasi
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.getMessages(widget.conversationId);
-    });
+
+    controller.getMessages(widget.conversationId);
+
+    controller.startChatPolling(widget.conversationId);
   }
 
   @override
   void dispose() {
+    controller.stopChatPolling();
+
     scrollController.dispose();
+
     super.dispose();
   }
 

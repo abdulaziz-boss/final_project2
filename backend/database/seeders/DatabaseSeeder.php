@@ -15,11 +15,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Seed Categories
+        $categories = [
+            ['name' => 'Lingkungan', 'slug' => 'lingkungan', 'icon' => 'eco'],
+            ['name' => 'Pendidikan', 'slug' => 'pendidikan', 'icon' => 'school'],
+            ['name' => 'Kesehatan', 'slug' => 'kesehatan', 'icon' => 'medical_services'],
+            ['name' => 'Sosial', 'slug' => 'sosial', 'icon' => 'people'],
+            ['name' => 'Penanggulangan Bencana', 'slug' => 'bencana', 'icon' => 'warning'],
+            ['name' => 'Budaya & Pariwisata', 'slug' => 'budaya', 'icon' => 'museum'],
+        ];
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        foreach ($categories as $category) {
+            \App\Models\Category::firstOrCreate(['slug' => $category['slug']], $category);
+        }
     }
 }

@@ -4,9 +4,9 @@ import '../models/opportunity_model.dart';
 class OpportunityRepository {
   final provider = OpportunityProvider();
 
-  Future<List<OpportunityModel>> getAll() async {
+  Future<List<OpportunityModel>> getAll({String? search, int? categoryId}) async {
     try {
-      final res = await provider.getAll();
+      final res = await provider.getAll(search: search, categoryId: categoryId);
       final dynamic responseData = res.data;
 
       List? listData;

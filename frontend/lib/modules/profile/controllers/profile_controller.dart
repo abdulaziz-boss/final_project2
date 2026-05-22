@@ -14,9 +14,6 @@ class ProfileController extends GetxController {
   final StorageService storageService = StorageService();
 
   var isLoading = false.obs;
-  var isFollowing = false.obs;
-  var followersCount = 0.obs;
-  var followingsCount = 0.obs;
   var isCurrentUser = true.obs;
 
   Rx<UserModel?> user = Rx<UserModel?>(null);
@@ -27,27 +24,37 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    initProfile();
+  }
+
+  Future<void> initProfile() async {
     final args = Get.arguments;
+
     if (args != null && args is int) {
       profileUserId = args;
       isCurrentUser.value = false;
+
+      await getProfile();
     } else {
-      _loadCurrentUserId();
-    }
-    
-    if (profileUserId != 0) {
-      getProfile();
-      if (!isCurrentUser.value) {
-        checkFollowStatus();
-      }
+      await _loadCurrentUserId();
     }
   }
 
   Future<void> _loadCurrentUserId() async {
     final currentUserData = await storageService.getUser();
+
+    print("CURRENT USER DATA: $currentUserData");
+
     if (currentUserData != null) {
       profileUserId = currentUserData['id'];
-      getProfile();
+      isCurrentUser.value = true;
+
+      print("PROFILE USER ID: $profileUserId");
+
+      await getProfile();
+    } else {
+      print("USER DI STORAGE NULL");
+      isLoading.value = false;
     }
   }
 
@@ -56,9 +63,7 @@ class ProfileController extends GetxController {
       isLoading.value = true;
       final data = await userRepository.getUserProfile(profileUserId);
       user.value = UserModel.fromJson(data['user']);
-      followersCount.value = data['user']['followers_count'] ?? 0;
-      followingsCount.value = data['user']['followings_count'] ?? 0;
-      
+
       if (data['opportunities'] != null) {
         opportunities.value = (data['opportunities'] as List)
             .map((e) => OpportunityModel.fromJson(e))
@@ -68,35 +73,6 @@ class ProfileController extends GetxController {
       Get.snackbar('Error', 'Gagal memuat profil: $e');
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  Future<void> toggleFollow() async {
-    if (isCurrentUser.value) return;
-    try {
-      final res = await userRepository.toggleFollow(profileUserId);
-      if (res['status'] == 'success') {
-        isFollowing.value = res['is_following'];
-        followersCount.value = res['followers_count'];
-        followingsCount.value = res['followings_count'];
-        Get.snackbar('Sukses', res['message'], backgroundColor: Colors.green, colorText: Colors.white);
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Gagal memproses permintaan');
-    }
-  }
-
-  Future<void> checkFollowStatus() async {
-    if (isCurrentUser.value) return;
-    try {
-      final res = await userRepository.checkFollowStatus(profileUserId);
-      if (res['status'] == 'success') {
-        isFollowing.value = res['is_following'];
-        followersCount.value = res['followers_count'];
-        followingsCount.value = res['followings_count'];
-      }
-    } catch (e) {
-      debugPrint('Check follow status error: $e');
     }
   }
 
@@ -142,24 +118,34 @@ class ProfileController extends GetxController {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: namaController,
-                  decoration: const InputDecoration(labelText: 'Nama Organisasi'),
-                  validator: (v) => v!.isEmpty ? 'Nama tidak boleh kosong' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Nama Organisasi',
+                  ),
+                  validator: (v) =>
+                      v!.isEmpty ? 'Nama tidak boleh kosong' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: deskripsiController,
-                  decoration: const InputDecoration(labelText: 'Deskripsi Singkat'),
-                  validator: (v) => v!.isEmpty ? 'Deskripsi tidak boleh kosong' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Deskripsi Singkat',
+                  ),
+                  validator: (v) =>
+                      v!.isEmpty ? 'Deskripsi tidak boleh kosong' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: alamatController,
-                  decoration: const InputDecoration(labelText: 'Alamat (Opsional)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Alamat (Opsional)',
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: websiteController,
-                  decoration: const InputDecoration(labelText: 'Website (Opsional)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Website (Opsional)',
+                  ),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -198,13 +184,23 @@ class ProfileController extends GetxController {
       isLoading.value = true;
       final res = await userRepository.requestUpgrade(data);
       if (res['success']) {
-        Get.snackbar('Sukses', res['message'], backgroundColor: Colors.green, colorText: Colors.white);
+        Get.snackbar(
+          'Sukses',
+          res['message'],
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
       } else {
         Get.snackbar('Error', res['message'] ?? 'Gagal');
       }
     } on dio.DioException catch (e) {
       final msg = e.response?.data['message'] ?? 'Gagal mengirim permintaan';
-      Get.snackbar('Error', msg, backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        msg,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } catch (e) {
       Get.snackbar('Error', e.toString());
     } finally {

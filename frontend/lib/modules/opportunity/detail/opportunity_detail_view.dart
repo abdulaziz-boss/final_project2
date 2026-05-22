@@ -7,6 +7,7 @@ import '../../../core/constants/api_constants.dart';
 import '../../shared/like/like_widget.dart';
 import '../../shared/comment/comment_widget.dart';
 import '../../shared/comment/comment_input.dart';
+import '../../opportunity/controllers/opportunity_controller.dart';
 
 class OpportunityDetailView extends GetView<OpportunityDetailController> {
   const OpportunityDetailView({super.key});
@@ -26,6 +27,8 @@ class OpportunityDetailView extends GetView<OpportunityDetailController> {
     final data = controller.data;
     final orgName = data.organization?.namaOrganisasi ?? "Penyelenggara";
     final hasMap = data.mapsUrl != null && data.mapsUrl!.isNotEmpty;
+    final opportunityController =  Get.find<OpportunityController>();
+
     
     String? imageUrl;
     if (data.foto != null && data.foto!.isNotEmpty) {
@@ -257,9 +260,21 @@ class OpportunityDetailView extends GetView<OpportunityDetailController> {
             // 🔥 APPLY BUTTON
             Expanded(
               child: ElevatedButton(
-                onPressed: data.status == 'open' 
-                    ? () => Get.toNamed('/apply', arguments: data.id)
-                    : null,
+                onPressed: data.status == 'open'
+                  ? () {
+                      if (opportunityController.userRole.value == 'admin') {
+                        Get.toNamed(
+                          '/participants',
+                          arguments: data.id,
+                        );
+                      } else {
+                        Get.toNamed(
+                          '/apply',
+                          arguments: data.id,
+                        );
+                      }
+                    }
+                  : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF006C49),
                   foregroundColor: Colors.white,
@@ -276,7 +291,11 @@ class OpportunityDetailView extends GetView<OpportunityDetailController> {
                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                     )
                   : Text(
-                      data.status == 'open' ? "Daftar Sekarang" : "Pendaftaran Ditutup",
+                      data.status == 'open'
+                        ? opportunityController.userRole.value == 'admin'
+                            ? "Lihat Partisipan"
+                            : "Daftar Sekarang"
+                        : "Pendaftaran Ditutup",
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                 ),

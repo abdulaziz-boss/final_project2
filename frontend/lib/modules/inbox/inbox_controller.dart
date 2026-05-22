@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'dart:async';
 import '../../data/models/conversation_model.dart';
 import '../../data/models/message_model.dart';
 import '../../data/models/notification_model.dart';
@@ -13,6 +14,7 @@ class InboxController extends GetxController {
   final ChatRepository repository;
   final NotificationRepository notificationRepo;
   final StorageService storage = StorageService();
+  final Map<int, List<MessageModel>> messageCache = {};
 
   // State
   var selectedTab = 0.obs; // 0: Pesan, 1: Aktivitas
@@ -21,6 +23,15 @@ class InboxController extends GetxController {
   var messages = <MessageModel>[].obs;
   var notifications = <NotificationModel>[].obs;
   var searchQuery = ''.obs;
+  var currentConversationId = 0.obs;
+  Timer? chatTimer;
+
+  // Badge count for notifications
+  int get unreadNotificationsCount => notifications.where((n) => !n.isRead).length;
+
+  // Unread conversations map (conversationId -> isUnread)
+  var unreadConversations = <int, bool>{}.obs;
+  int get unreadMessagesCount => unreadConversations.values.where((v) => v).length;
 
   // Form
   final messageController = TextEditingController();
@@ -49,6 +60,29 @@ class InboxController extends GetxController {
       getConversations();
     } else {
       getNotifications();
+      _markAllNotificationsAsRead();
+    }
+  }
+
+  Future<void> _markAllNotificationsAsRead() async {
+    if (unreadNotificationsCount > 0) {
+      try {
+        await notificationRepo.markAllAsRead();
+        // Update state lokal agar badge hilang secara instan
+        final updated = notifications.map((n) {
+          return NotificationModel(
+            id: n.id,
+            userId: n.userId,
+            judul: n.judul,
+            isi: n.isi,
+            isRead: true,
+            createdAt: n.createdAt,
+          );
+        }).toList();
+        notifications.assignAll(updated);
+      } catch (e) {
+        debugPrint('ERROR MARK ALL READ: $e');
+      }
     }
   }
 
@@ -69,6 +103,7 @@ class InboxController extends GetxController {
       isLoading.value = true;
       final result = await repository.getConversations();
       conversations.assignAll(result);
+      _calculateUnreadConversations();
     } catch (e) {
       debugPrint('ERROR INBOX: $e');
       _handleApiError(e);
@@ -77,33 +112,155 @@ class InboxController extends GetxController {
     }
   }
 
+  void _calculateUnreadConversations() {
+    final tempMap = <int, bool>{};
+    for (var c in conversations) {
+      tempMap[c.id] = c.unreadCount > 0;
+    }
+    unreadConversations.assignAll(tempMap);
+  }
+
+  void markConversationAsRead(int conversationId) {
+    unreadConversations[conversationId] = false;
+    final index = conversations.indexWhere((c) => c.id == conversationId);
+    if (index != -1) {
+      final oldConv = conversations[index];
+      conversations[index] = ConversationModel(
+        id: oldConv.id,
+        user1Id: oldConv.user1Id,
+        user2Id: oldConv.user2Id,
+        user1Name: oldConv.user1Name,
+        user2Name: oldConv.user2Name,
+        user1Photo: oldConv.user1Photo,
+        user2Photo: oldConv.user2Photo,
+        lastMessage: oldConv.lastMessage,
+        lastMessageTime: oldConv.lastMessageTime,
+        lastMessageSenderId: oldConv.lastMessageSenderId,
+        unreadCount: 0,
+      );
+    }
+  }
+
   Future<void> getMessages(int conversationId) async {
-    try {
+    currentConversationId.value = conversationId;
+
+    // =========================
+    // TAMPILKAN CACHE DULU
+    // =========================
+    if (messageCache.containsKey(conversationId)) {
+      messages.assignAll(messageCache[conversationId]!);
+    } else {
+      messages.clear();
       isLoading.value = true;
+    }
+
+    try {
       final result = await repository.getMessages(conversationId);
-      messages.assignAll(result);
+
+      // simpan cache
+      messageCache[conversationId] = result;
+
+      // pastikan masih di chat yg sama
+      if (currentConversationId.value == conversationId) {
+        messages.assignAll(result);
+      }
     } catch (e) {
-      debugPrint('ERROR MESSAGES: $e');
-      _handleApiError(e);
+      debugPrint('ERROR GET MESSAGE: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
+  void startChatPolling(int conversationId) {
+    chatTimer?.cancel();
+
+    chatTimer = Timer.periodic(
+      const Duration(seconds: 2),
+      (_) async {
+        try {
+          final result =
+              await repository.getMessages(conversationId);
+
+          // update hanya kalau masih di chat yg sama
+          if (currentConversationId.value == conversationId) {
+            messages.assignAll(result);
+
+            // update cache juga kalau pakai cache
+            messageCache[conversationId] = result;
+          }
+        } catch (e) {
+          debugPrint('POLLING ERROR: $e');
+        }
+      },
+    );
+  }
+
+  void stopChatPolling() {
+    chatTimer?.cancel();
+  }
+
   Future<void> sendMessage(int conversationId, {String? text}) async {
     final messageText = text ?? messageController.text;
-    if (messageText.isEmpty) return;
 
-    if (text == null) messageController.clear();
+    if (messageText.trim().isEmpty) return;
+
+    if (text == null) {
+      messageController.clear();
+    }
 
     try {
+      // =========================
+      // LOCAL MESSAGE (REALTIME UI)
+      // =========================
+      final tempMessage = MessageModel(
+        id: DateTime.now().millisecondsSinceEpoch,
+        conversationId: conversationId,
+        senderId: currentUserId,
+        message: messageText,
+        createdAt: DateTime.now().toIso8601String(),
+      );
+
+      messages.add(tempMessage);
+
+      messageCache[conversationId] = messages.toList();
+
+      // =========================
+      // UPDATE INBOX LANGSUNG
+      // =========================
+      final index =
+          conversations.indexWhere((c) => c.id == conversationId);
+
+      if (index != -1) {
+        final old = conversations[index];
+
+        conversations[index] = ConversationModel(
+          id: old.id,
+          user1Id: old.user1Id,
+          user2Id: old.user2Id,
+          user1Name: old.user1Name,
+          user2Name: old.user2Name,
+          user1Photo: old.user1Photo,
+          user2Photo: old.user2Photo,
+          lastMessage: messageText,
+          lastMessageTime: DateTime.now().toIso8601String(),
+          lastMessageSenderId: currentUserId,
+          unreadCount: 0,
+        );
+
+        // PINDAHKAN KE ATAS
+        final updatedConversation = conversations.removeAt(index);
+        conversations.insert(0, updatedConversation);
+      }
+
+      // =========================
+      // API CALL
+      // =========================
       await repository.sendMessage(
         conversationId: conversationId,
         message: messageText,
       );
-      if (Get.currentRoute == '/chat') {
-        getMessages(conversationId);
-      }
+
+      markConversationAsRead(conversationId);
     } catch (e) {
       debugPrint('ERROR SEND MESSAGE: $e');
       _handleApiError(e);
@@ -296,4 +453,8 @@ class InboxController extends GetxController {
     messageController.dispose();
     super.onClose();
   }
+
+
+  
+  
 }

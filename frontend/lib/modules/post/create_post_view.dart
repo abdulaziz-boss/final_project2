@@ -18,7 +18,7 @@ class CreatePostView extends GetView<CreatePostController> {
             Icon(Icons.volunteer_activism, color: Color(0xFF006C49), size: 28),
             SizedBox(width: 8),
             Text(
-              'Tambah Lowongan',
+              'Tambah Kegiatan',
               style: TextStyle(
                 color: Color(0xFF006C49),
                 fontSize: 20,
@@ -99,7 +99,7 @@ class CreatePostView extends GetView<CreatePostController> {
             // TITLE
             _buildTextField(
               controller: controller.titleController,
-              label: 'Judul Lowongan',
+              label: 'Judul Kegiatan',
               hint: 'Contoh: Relawan Bersih Pantai Kuta',
               validator: (v) => v!.isEmpty ? 'Judul tidak boleh kosong' : null,
             ),

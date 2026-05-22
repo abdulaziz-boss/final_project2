@@ -37,4 +37,12 @@ class Conversation extends Model
     {
         return $this->belongsTo(User::class, 'user2_id');
     }
+
+    /**
+     * Relasi ke pesan terakhir (untuk preview dan sorting)
+     */
+    public function latestMessage()
+    {
+        return $this->hasOne(Message::class)->latestOfMany();
+    }
 }

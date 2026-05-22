@@ -4,9 +4,9 @@ class ApiConstants {
   // Jika di Web (Chrome), gunakan localhost. Jika di HP, gunakan IP Laptop.
   static String get host {
     if (kIsWeb) {
-      return "http://localhost:8000";
+      return "http://172.18.20.37:8000";
     } else {
-      return "http://192.168.0.100:8000";
+      return "http://172.18.20.203:8000";
     }
   }
 

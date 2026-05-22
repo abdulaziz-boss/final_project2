@@ -18,12 +18,22 @@ class ChatController extends Controller
     {
         $userId = Auth::id();
 
-        $conversations = Conversation::with(['user1', 'user2', 'messages' => function($q) {
-                $q->latest()->limit(1); // Ambil pesan terakhir untuk preview
-            }])
+        $conversations = Conversation::with(['user1', 'user2', 'latestMessage'])
             ->where('user1_id', $userId)
             ->orWhere('user2_id', $userId)
-            ->get();
+            ->get()
+            ->map(function ($conversation) use ($userId) {
+                // Hitung pesan yang belum dibaca dari lawan bicara
+                $conversation->unread_count = Message::where('conversation_id', $conversation->id)
+                    ->where('sender_id', '!=', $userId)
+                    ->where('is_read', false)
+                    ->count();
+                return $conversation;
+            })
+            ->sortByDesc(function ($conversation) {
+                return $conversation->latestMessage ? $conversation->latestMessage->created_at : $conversation->created_at;
+            })
+            ->values();
 
         return response()->json([
             'status' => 'success',
@@ -81,6 +91,12 @@ class ChatController extends Controller
         if ($conversation->user1_id != Auth::id() && $conversation->user2_id != Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
+
+        // Tandai semua pesan dari lawan bicara sebagai dibaca
+        Message::where('conversation_id', $conversationId)
+            ->where('sender_id', '!=', Auth::id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
 
         $messages = Message::where('conversation_id', $conversationId)
             ->with('sender:id,name,foto_profil')

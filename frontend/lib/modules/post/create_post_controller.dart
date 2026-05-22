@@ -126,17 +126,8 @@ class CreatePostController extends GetxController {
         colorText: Colors.white,
       );
 
-      // Redirect ke tab Home (Index 0)
-      if (Get.isRegistered<MainNavController>()) {
-        Get.find<MainNavController>().changeIndex(0);
-      }
-
-      // Refresh Home Feed
-      if (Get.isRegistered<HomeController>()) {
-        Get.find<HomeController>().fetchFeeds();
-      }
-
-      Get.back(result: true);
+      // Paksa kembali ke menu utama (Home tab) dan refresh seluruhnya
+      Get.offAllNamed('/main');
     } on dio.DioException catch (e) {
       final msg = e.response?.data['message'] ?? e.response?.data['errors']?.toString() ?? 'Terjadi kesalahan';
       Get.snackbar(

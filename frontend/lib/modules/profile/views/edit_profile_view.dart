@@ -169,7 +169,10 @@ class EditProfileView extends GetView<EditProfileController> {
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
-      validator: (value) => value!.isEmpty ? '$label cannot be empty' : null,
+      validator: (value) {
+        if (label == 'Bio') return null;
+        return value == null || value.isEmpty ? '$label cannot be empty' : null;
+      },
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Color(0xFF747975)),

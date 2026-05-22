@@ -3,6 +3,8 @@ import 'main_nav_controller.dart';
 import '../home/home_controller.dart';
 import '../discover/discover_controller.dart';
 import '../inbox/inbox_controller.dart';
+import '../profile/controllers/profile_controller.dart';
+import '../opportunity/controllers/opportunity_controller.dart';
 import '../../data/providers/chat_provider.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../data/providers/notification_provider.dart';
@@ -14,6 +16,8 @@ class MainNavBinding extends Bindings {
     Get.lazyPut<MainNavController>(() => MainNavController());
     Get.lazyPut<HomeController>(() => HomeController());
     Get.lazyPut<DiscoverController>(() => DiscoverController());
+    Get.lazyPut<OpportunityController>(() => OpportunityController());
+    Get.lazyPut<ProfileController>(() => ProfileController());
 
     // Inbox / Chat dependencies
     Get.lazyPut(() => ChatProvider());

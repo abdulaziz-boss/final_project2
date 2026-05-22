@@ -13,13 +13,8 @@ class DiscoverView extends GetView<DiscoverController> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔥 SEARCH BAR SECTION
             _buildHeader(),
-
-            // 🔥 CATEGORY CHIPS
             _buildCategoryChips(),
-
-            // 🔥 DISCOVER FEED
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value) {
@@ -48,12 +43,12 @@ class DiscoverView extends GetView<DiscoverController> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Explore',
+            'Discover',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -68,15 +63,15 @@ class DiscoverView extends GetView<DiscoverController> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Cari volunteer atau kegiatan...',
-                hintStyle: const TextStyle(color: Color(0xFF8C8D8E), fontSize: 15),
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF006C49)),
+              decoration: const InputDecoration(
+                hintText: 'Cari kegiatan...',
+                hintStyle: TextStyle(color: Color(0xFF8C8D8E), fontSize: 15),
+                prefixIcon: Icon(Icons.search, color: Color(0xFF006C49)),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                contentPadding: EdgeInsets.symmetric(vertical: 15),
               ),
               onChanged: (value) {
-                // Tambahkan logika pencarian di controller nanti
+                controller.searchQuery.value = value;
               },
             ),
           ),
@@ -86,40 +81,62 @@ class DiscoverView extends GetView<DiscoverController> {
   }
 
   Widget _buildCategoryChips() {
-    final categories = ['Lingkungan', 'Pendidikan', 'Kesehatan', 'Edukasi', 'Sosial', 'Religi'];
-    return SizedBox(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final isSelected = index == 0; // Sementara Discover terpilih
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ChoiceChip(
-              label: Text(categories[index]),
-              selected: isSelected,
-              onSelected: (selected) {},
-              selectedColor: const Color(0xFF006C49),
-              backgroundColor: Colors.white,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF3C4A42),
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: isSelected ? Colors.transparent : const Color(0xFFE2E8F0),
+    return Obx(() {
+      final allCategories = [
+        {'id': null, 'name': 'Semua'},
+        ...controller.categories,
+      ];
+
+      return Container(
+        height: 50,
+        margin: const EdgeInsets.only(bottom: 8),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: allCategories.length,
+          itemBuilder: (context, index) {
+            final category = allCategories[index];
+            final categoryId = category['id'] as int?;
+            final categoryName = category['name'] as String;
+            return Obx(() {
+              final isSelected =
+                  controller.selectedCategoryId.value == categoryId;
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  showCheckmark: false,
+                  label: Text(categoryName),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    controller.selectCategory(categoryId);
+                  },
+                  selectedColor: const Color(0xFF006C49),
+                  backgroundColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : const Color(0xFF3C4A42),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: isSelected
+                          ? Colors.transparent
+                          : const Color(0xFFE2E8F0),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                 ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-          );
-        },
-      ),
-    );
+              );
+            });
+          },
+        ),
+      );
+    });
   }
 
   Widget _buildEmptyState() {

@@ -6,17 +6,8 @@ class UserRepository {
 
   Future<Map<String, dynamic>> getUserProfile(int id) async {
     final response = await provider.getUserProfile(id);
-    return response.data['data']; // Returns ['user': UserModel, 'opportunities': List]
-  }
-
-  Future<Map<String, dynamic>> toggleFollow(int id) async {
-    final response = await provider.toggleFollow(id);
-    return response.data;
-  }
-
-  Future<Map<String, dynamic>> checkFollowStatus(int id) async {
-    final response = await provider.checkFollowStatus(id);
-    return response.data;
+    return response
+        .data['data']; // Returns ['user': UserModel, 'opportunities': List]
   }
 
   Future<UserModel> updateProfile(int id, dynamic data) async {

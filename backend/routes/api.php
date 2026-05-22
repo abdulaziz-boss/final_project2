@@ -7,6 +7,7 @@ use App\Http\Controllers\API\OrganizationController;
 use App\Http\Controllers\API\OpportunityController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ChatController;
+use App\Http\Controllers\API\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,7 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('google', [AuthController::class, 'googleLogin']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
 });
 
 // Lowongan & Organisasi (Akses Publik)
@@ -31,13 +33,13 @@ Route::get('organizations', [OrganizationController::class, 'index']); // Meliha
 
 // --- 2. ROUTE TERPROTEKSI (JWT) ---
 Route::middleware('jwt')->group(function () {
-    
+
     // Profil & Logout
     Route::prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
     });
-    
+
     // Management Organisasi (Sesuai Controller Baru)
     Route::prefix('organization')->group(function () {
         Route::get('/', [OrganizationController::class, 'show']);      // Cek profil org sendiri
@@ -59,11 +61,20 @@ Route::middleware('jwt')->group(function () {
         Route::post('/', [OpportunityController::class, 'store']);
         Route::post('{id}', [OpportunityController::class, 'update']);
         Route::delete('{id}', [OpportunityController::class, 'destroy']);
-        
+
         // Fitur Sosial (Like & Comment)
         Route::get('{id}/likes', [OpportunityController::class, 'getLikeStatus']);
         Route::post('{id}/like', [OpportunityController::class, 'toggleLike']);
         Route::post('{id}/comments', [OpportunityController::class, 'storeComment']);
+    });
+
+    // Follows & Users
+    Route::prefix('users')->group(function () {
+        Route::get('search', [UserController::class, 'search']);
+        Route::get('{id}', [UserController::class, 'getUserProfile']);
+        Route::post('{id}', [UserController::class, 'updateProfile']);
+        Route::post('{id}/follow', [UserController::class, 'toggleFollow']);
+        Route::get('{id}/follow-status', [UserController::class, 'checkFollowStatus']);
     });
 
     // Notifikasi

@@ -8,6 +8,8 @@ class ConversationModel {
   final String? user2Photo;
   final String? lastMessage;
   final String? lastMessageTime;
+  final int? lastMessageSenderId;
+  final int unreadCount;
 
   ConversationModel({
     required this.id,
@@ -19,15 +21,23 @@ class ConversationModel {
     this.user2Photo,
     this.lastMessage,
     this.lastMessageTime,
+    this.lastMessageSenderId,
+    this.unreadCount = 0,
   });
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
-    // Ambil pesan terakhir dari relasi 'messages' jika ada
+    // Ambil pesan terakhir dari relasi 'latest_message' atau 'messages' jika ada
     String? lastMsg;
     String? lastMsgTime;
-    if (json['messages'] != null && (json['messages'] as List).isNotEmpty) {
+    int? lastMsgSenderId;
+    if (json['latest_message'] != null) {
+      lastMsg = json['latest_message']['message'];
+      lastMsgTime = json['latest_message']['created_at'];
+      lastMsgSenderId = json['latest_message']['sender_id'];
+    } else if (json['messages'] != null && (json['messages'] as List).isNotEmpty) {
       lastMsg = json['messages'][0]['message'];
       lastMsgTime = json['messages'][0]['created_at'];
+      lastMsgSenderId = json['messages'][0]['sender_id'];
     }
 
     return ConversationModel(
@@ -40,6 +50,8 @@ class ConversationModel {
       user2Photo: json['user2'] != null ? json['user2']['foto_profil'] : null,
       lastMessage: lastMsg ?? json['last_message'],
       lastMessageTime: lastMsgTime,
+      lastMessageSenderId: lastMsgSenderId,
+      unreadCount: json['unread_count'] ?? 0,
     );
   }
 }

@@ -9,11 +9,14 @@ import '../modules/main_nav/main_nav_binding.dart';
 import '../middlewares/auth_middleware.dart';
 // import '../middlewares/role_middleware.dart';
 import '../modules/opportunity/detail/opportunity_detail_view.dart';
-import '../modules/opportunity/detail/opportunity_detail_binding.dart';
+import '../modules/opportunity/bindings/opportunity_detail_binding.dart';
 import '../modules/opportunity/apply/apply_binding.dart';
 import '../modules/opportunity/apply/apply_view.dart';
 import '../modules/inbox/chat/chat_view.dart';
 import '../modules/inbox/inbox_binding.dart';
+import '../modules/profile/views/profile_view.dart';
+import '../modules/profile/bindings/profile_binding.dart';
+import '../modules/opportunity/bindings/opportunity_binding.dart';
 
 class AppPages {
   static final pages = [
@@ -40,23 +43,13 @@ class AppPages {
         AuthMiddleware(),
       ],
     ),
-    // GetPage(
-    //   name: '/admin',
-    //   page: () => const AdminDashboardView(),
-    //   binding: AdminDashboardBinding(),
-    //   middlewares: [
-    //     AuthMiddleware(),
-    //     RoleMiddleware('admin'),
-    //   ],
-    // ),
-    // GetPage(
-    //   name: '/super_admin',
-    //   page: () => const SuperAdminView(),
-    //   middlewares: [
-    //     AuthMiddleware(),
-    //     RoleMiddleware('super_admin'),
-    //   ],
-    // ),
+
+    GetPage(
+      name: '/opportunity',
+      page: () => HomeView(),
+      binding: OpportunityBinding(),
+    ),
+
     GetPage(
       name: '/opportunityDetail',
       page: () => const OpportunityDetailView(),
@@ -76,6 +69,12 @@ class AppPages {
         return ChatView(conversationId: conversationId);
       },
       binding: InboxBinding(),
+    ),
+
+    GetPage(
+      name: '/profile',
+      page: () => ProfileView(),
+      binding: ProfileBinding(),
     ),
     
   ];

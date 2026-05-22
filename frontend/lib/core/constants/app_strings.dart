@@ -10,4 +10,6 @@ class AppStrings {
 
   static const success = "Success";
   static const error = "Error";
+
+  static const noActivity = "Belum ada kegiatan. Jadilah yang pertama membuat!";
 }
