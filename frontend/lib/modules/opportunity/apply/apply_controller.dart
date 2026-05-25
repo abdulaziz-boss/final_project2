@@ -6,27 +6,26 @@ class ApplyController extends GetxController {
   final repo = ApplicationRepository();
 
   var isLoading = false.obs;
-  var application = Rxn<ApplicationModel>(); // 🔥 null = belum apply
+  var application = Rxn<ApplicationModel>();
 
-  late int opportunityId;
+  late final int opportunityId;
 
   @override
   void onInit() {
-    opportunityId = Get.arguments;
+    opportunityId = Get.arguments as int;
     checkApplication();
     super.onInit();
   }
 
-  // 🔥 CEK SUDAH APPLY
+  // 🔥 CEK STATUS APPLY
   Future<void> checkApplication() async {
     try {
       isLoading.value = true;
 
       final result = await repo.check(opportunityId);
       application.value = result;
-
     } catch (e) {
-      print("ERROR CHECK APPLY: $e");
+      application.value = null;
     } finally {
       isLoading.value = false;
     }
@@ -41,9 +40,7 @@ class ApplyController extends GetxController {
 
       Get.snackbar("Success", "Berhasil daftar");
 
-      // 🔥 refresh status setelah apply
       await checkApplication();
-
     } catch (e) {
       Get.snackbar("Error", e.toString());
     } finally {

@@ -106,11 +106,11 @@ class HomeView extends GetView<HomeController> {
                 itemBuilder: (context, index) {
                   final feed = controller.feeds[index];
 
-                  return Obx(() => OpportunityCard(
-                        data: feed.data,
-                        applyStatus:
-                            controller.applicationMap[feed.data.id],
-                      ));
+                  return OpportunityCard(
+                    data: feed.data,
+                    applyStatus:
+                        controller.applicationMap[feed.data.id],
+                  );
                 },
               );
             }),

@@ -9,17 +9,38 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up(): void
-{
-    Schema::create('applications', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-        $table->foreignId('opportunity_id')->constrained('opportunities')->onDelete('cascade');
-        $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
-        $table->text('alasan')->nullable();
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::create('applications', function (Blueprint $table) {
+
+            $table->id();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->onDelete('cascade');
+
+            $table->foreignId('opportunity_id')
+                ->constrained()
+                ->onDelete('cascade');
+
+            $table->enum('status', [
+                'pending',
+                'accepted',
+                'rejected'
+            ])->default('pending');
+
+            // alasan reject / catatan admin
+            $table->text('alasan')->nullable();
+
+            $table->timestamps();
+
+            // cegah double apply
+            $table->unique([
+                'user_id',
+                'opportunity_id'
+            ]);
+        });
+    }
 
     /**
      * Reverse the migrations.

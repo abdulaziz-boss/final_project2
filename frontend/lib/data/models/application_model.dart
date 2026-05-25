@@ -1,10 +1,12 @@
+import 'user_model.dart';
+
 class ApplicationModel {
   final int id;
   final int userId;
   final int opportunityId;
   final String status;
   final String? alasan;
-  final DateTime? createdAt;
+  final UserModel? user;
 
   ApplicationModel({
     required this.id,
@@ -12,7 +14,7 @@ class ApplicationModel {
     required this.opportunityId,
     required this.status,
     this.alasan,
-    this.createdAt,
+    this.user,
   });
 
   factory ApplicationModel.fromJson(Map<String, dynamic> json) {
@@ -20,19 +22,29 @@ class ApplicationModel {
       id: json['id'],
       userId: json['user_id'],
       opportunityId: json['opportunity_id'],
-      status: json['status'] ?? 'pending',
+      status: json['status'],
       alasan: json['alasan'],
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
+      user: json['user'] != null
+          ? UserModel.fromJson(json['user'])
           : null,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      "user_id": userId,
-      "opportunity_id": opportunityId,
-      "alasan": alasan,
-    };
+  ApplicationModel copyWith({
+    int? id,
+    int? userId,
+    int? opportunityId,
+    String? status,
+    String? alasan,
+    UserModel? user,
+  }) {
+    return ApplicationModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      opportunityId: opportunityId ?? this.opportunityId,
+      status: status ?? this.status,
+      alasan: alasan ?? this.alasan,
+      user: user ?? this.user,
+    );
   }
 }

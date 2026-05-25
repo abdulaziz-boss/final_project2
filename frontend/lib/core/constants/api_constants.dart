@@ -6,7 +6,7 @@ class ApiConstants {
     if (kIsWeb) {
       return "http://172.18.20.37:8000";
     } else {
-      return "http://172.18.20.203:8000";
+      return "http://172.18.20.28:8000";
     }
   }
 

@@ -9,7 +9,7 @@ import '../modules/main_nav/main_nav_binding.dart';
 import '../middlewares/auth_middleware.dart';
 // import '../middlewares/role_middleware.dart';
 import '../modules/opportunity/detail/opportunity_detail_view.dart';
-import '../modules/opportunity/bindings/opportunity_detail_binding.dart';
+import '../modules/opportunity/detail/opportunity_detail_binding.dart';
 import '../modules/opportunity/apply/apply_binding.dart';
 import '../modules/opportunity/apply/apply_view.dart';
 import '../modules/inbox/chat/chat_view.dart';
@@ -17,6 +17,8 @@ import '../modules/inbox/inbox_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/opportunity/bindings/opportunity_binding.dart';
+import '../modules/participans/participants_view.dart';
+import '../modules/participans/participants_binding.dart';
 
 class AppPages {
   static final pages = [
@@ -75,6 +77,12 @@ class AppPages {
       name: '/profile',
       page: () => ProfileView(),
       binding: ProfileBinding(),
+    ),
+
+    GetPage(
+      name: '/participants',
+      page: () => const ParticipantsView(),
+      binding: ParticipantsBinding(),
     ),
     
   ];

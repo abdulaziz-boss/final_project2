@@ -89,8 +89,8 @@ class OpportunityController extends Controller
 
             $opportunity = Opportunity::create([
                 'organization_id' => $orgId,
-                'user_id'         => $user->id, 
-                'created_by'      => $user->id, 
+                'user_id'         => $user->id,
+                'created_by'      => $user->id,
                 'judul'           => $request->judul,
                 'deskripsi'       => $request->deskripsi,
                 'lokasi'          => $request->lokasi,
@@ -119,7 +119,7 @@ class OpportunityController extends Controller
     public function show($id)
     {
         $opportunity = Opportunity::with([
-                'creator.organization', 
+                'creator.organization',
                 'organization',
                 'categories',
                 'comments.user:id,name,foto_profil',
@@ -144,7 +144,7 @@ class OpportunityController extends Controller
     public function update(Request $request, $id)
     {
         $opportunity = Opportunity::findOrFail($id);
-        
+
         if ($opportunity->created_by != Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
@@ -191,7 +191,7 @@ class OpportunityController extends Controller
         try {
             $userId = Auth::id();
             $opportunity = Opportunity::find($id);
-            
+
             if (!$opportunity) {
                 return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
             }
@@ -240,7 +240,7 @@ class OpportunityController extends Controller
             $opportunity = Opportunity::findOrFail($id);
             $comment = Comment::create([
                 'user_id'        => Auth::id(),
-                'opportunity_id' => $id, 
+                'opportunity_id' => $id,
                 'comment'        => $request->comment,
                 'parent_id'      => $request->parent_id
             ]);
@@ -282,19 +282,19 @@ class OpportunityController extends Controller
      * 9. Lain-lain
      */
    public function getLikeStatus($id)
-{
-    // Cek apakah user ini sudah like atau belum
-    $isLiked = Like::where('user_id', Auth::id())->where('opportunity_id', $id)->exists();
-    
-    // 🔥 TAMBAHKAN BARIS INI: Hitung total like untuk opportunity ini
-    $total = Like::where('opportunity_id', $id)->count();
+    {
+        // Cek apakah user ini sudah like atau belum
+        $isLiked = Like::where('user_id', Auth::id())->where('opportunity_id', $id)->exists();
 
-    return response()->json([
-        'success' => true, 
-        'is_liked' => $isLiked,
-        'total' => $total // Sekarang $total tidak akan merah lagi
-    ]); 
-}
+        // 🔥 TAMBAHKAN BARIS INI: Hitung total like untuk opportunity ini
+        $total = Like::where('opportunity_id', $id)->count();
+
+        return response()->json([
+            'success' => true,
+            'is_liked' => $isLiked,
+            'total' => $total // Sekarang $total tidak akan merah lagi
+        ]);
+    }
 
     public function getCategories()
     {

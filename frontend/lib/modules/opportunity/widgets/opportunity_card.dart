@@ -231,14 +231,14 @@ class OpportunityCard extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 12),
                     child: TextButton(
                       onPressed: () {
-                        if (opportunityController.userRole.value == 'admin') {
+                        if (opportunityController.userRole.value != 'admin') {
                           Get.toNamed(
-                            '/participants',
-                            arguments: data.id,
+                            '/opportunityDetail',
+                            arguments: data,
                           );
                         } else {
                           Get.toNamed(
-                            '/apply',
+                            '/participants',
                             arguments: data.id,
                           );
                         }
@@ -305,6 +305,38 @@ class OpportunityCard extends StatelessWidget {
                     ),
                   ),
                   
+                  if (applyStatus != null) ...[
+                    const SizedBox(height: 8),
+
+                    Align(
+                      alignment: Alignment.centerLeft,
+
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: getStatusColor(applyStatus!),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+
+                        child: Text(
+                          getStatusText(applyStatus!),
+
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+                  ],
+
                   // Extra Info (Instagram Style)
                   Row(
                     children: [
@@ -337,5 +369,35 @@ class OpportunityCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Color getStatusColor(String status) {
+
+  switch (status) {
+
+    case 'accepted':
+      return Colors.green;
+
+    case 'rejected':
+      return Colors.red;
+
+    default:
+      return Colors.orange;
+  }
+}
+
+String getStatusText(String status) {
+
+  switch (status) {
+
+    case 'accepted':
+      return '✅ Diterima';
+
+    case 'rejected':
+      return '❌ Ditolak';
+
+    default:
+      return '⏳ Pending';
   }
 }

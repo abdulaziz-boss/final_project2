@@ -8,6 +8,7 @@ use App\Http\Controllers\API\OpportunityController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\ApplicationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,4 +93,24 @@ Route::middleware('jwt')->group(function () {
 
     // Resource Lainnya
     Route::apiResource('products', ProductController::class);
+
+    // --- 3. ROUTE APLIKASI (Apply & Cek Status) ---
+    Route::prefix('applications')->group(function () {
+
+        // user apply
+        Route::post('{opportunityId}', [ApplicationController::class, 'apply']);
+        // cek status apply user
+        Route::get('{opportunityId}', [ApplicationController::class, 'check']);
+        // admin lihat participant
+        Route::get('participants/{opportunityId}',
+            [ApplicationController::class, 'participants']);
+        // admin approve/reject
+        Route::put('{id}/status',
+            [ApplicationController::class, 'updateStatus']);
+        Route::get('my-applications',
+            [ApplicationController::class, 'myApplications']
+        );
+    });
 });
+
+

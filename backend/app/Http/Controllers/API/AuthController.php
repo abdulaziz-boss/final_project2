@@ -63,6 +63,9 @@ class AuthController extends Controller
             }
 
             $token = JWTAuth::fromUser($user);
+            $user->update([
+                'last_seen' => now()
+            ]);
 
             return response()->json([
                 'status' => 'success',
@@ -90,7 +93,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:users',
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
@@ -123,6 +126,18 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $credentials = $request->only('email', 'password');
 
         try {
@@ -136,6 +151,9 @@ class AuthController extends Controller
             }
 
             $user = auth()->user();
+            $user->update([
+                'last_seen' => now()
+            ]);
 
         } catch (JWTException $e) {
 
@@ -154,6 +172,7 @@ class AuthController extends Controller
                 'token' => $this->respondWithToken($token)
             ]
         ]);
+
     }
 
     /**
@@ -236,6 +255,13 @@ class AuthController extends Controller
      */
     public function getPendingAdmins()
     {
+        if (auth()->user()->role !== 'super_admin') {
+
+            return response()->json([
+                'message' => 'Akses ditolak'
+            ], 403);
+        }
+
         $pendingUsers = User::with('organization')
             ->whereNotNull('organization_id')
             ->where('role', 'user')
@@ -324,12 +350,22 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        JWTAuth::invalidate(JWTAuth::getToken());
+        try {
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Logout berhasil'
-        ]);
+            JWTAuth::invalidate(JWTAuth::getToken());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logout berhasil'
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Logout gagal',
+            ], 500);
+        }
     }
 
     /**
@@ -337,6 +373,10 @@ class AuthController extends Controller
      */
     public function me()
     {
+        auth()->user()->update([
+            'last_seen' => now()
+        ]);
+
         return response()->json([
             'status' => 'success',
             'data' => auth()->user()->load('organization')

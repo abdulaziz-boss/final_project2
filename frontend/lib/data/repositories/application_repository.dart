@@ -1,41 +1,80 @@
+import 'package:dio/dio.dart';
 import '../models/application_model.dart';
-import '../providers/application_provider.dart';
+import '../../core/services/api_service.dart';
 
 class ApplicationRepository {
-  final provider = ApplicationProvider();
 
-  // 🔥 APPLY
-  Future<void> apply(int opportunityId, {String? alasan}) async {
-    final response = await provider.apply(opportunityId, alasan: alasan);
+  final api = ApiService().dio;
 
-    final res = response.data;
+  // apply volunteer
+  Future<void> apply(int opportunityId) async {
 
-    if (res['status'] != 'success') {
-      throw Exception(res['message'] ?? "Gagal apply");
-    }
+    await api.post(
+      '/applications/$opportunityId',
+    );
   }
 
-  // 🔥 GET MY APPLICATIONS
-  Future<List<ApplicationModel>> getMyApplications() async {
-    final response = await provider.getMyApplications();
+  // cek status apply
+  Future<ApplicationModel?> check(
+      int opportunityId) async {
+
+    final response = await api.get(
+      '/applications/$opportunityId',
+    );
+
+    final data = response.data['data'];
+
+    if (data == null) {
+      return null;
+    }
+
+    return ApplicationModel.fromJson(data);
+  }
+
+  // admin lihat participants
+  Future<List<ApplicationModel>>
+      getParticipants(int opportunityId) async {
+
+    final response = await api.get(
+      '/applications/participants/$opportunityId',
+    );
 
     final List data = response.data['data'];
 
-    return data.map((e) => ApplicationModel.fromJson(e)).toList();
+    return data
+        .map((e) => ApplicationModel.fromJson(e))
+        .toList();
   }
 
-  // 🔥 CHECK SUDAH APPLY
-  Future<ApplicationModel?> check(int opportunityId) async {
-    try {
-      final response = await provider.checkApplication(opportunityId);
+  // admin approve/reject
+  Future<void> updateStatus(
+  int id,
+  String status, {
+  String? reason,
+  }) async {
+    await api.patch(
+      '/applications/$id',
+      data: {
+        'status': status,
 
-      final res = response.data;
+        // 🔥 INI BAGIAN REASON
+        if (reason != null && reason.isNotEmpty)
+          'alasan': reason,
+      },
+    );
+  }
 
-      if (res['data'] == null) return null;
+  Future<List<ApplicationModel>>
+      getMyApplications() async {
 
-      return ApplicationModel.fromJson(res['data']);
-    } catch (e) {
-      return null;
-    }
+    final response = await api.get(
+      '/my-applications',
+    );
+
+    final List data = response.data['data'];
+
+    return data
+        .map((e) => ApplicationModel.fromJson(e))
+        .toList();
   }
 }
