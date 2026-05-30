@@ -45,7 +45,7 @@ class RegisterView extends GetView<RegisterController> {
                               Icon(Icons.volunteer_activism, color: Color(0xFF006C49), size: 48),
                               SizedBox(height: 8),
                               Text(
-                                'zakkal.apl',
+                                'GoVolunter',
                                 style: TextStyle(
                                   fontFamily: 'Plus Jakarta Sans',
                                   color: Color(0xFF191C1D),
@@ -177,7 +177,7 @@ class RegisterView extends GetView<RegisterController> {
                   const SizedBox(height: 40),
                   const Center(
                     child: Text(
-                      '© 2024 Digital Commons - zakkal.apl.\nMelayani dengan hati.',
+                      '© 2024 GoVolunter.\nMelayani dengan hati.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFF94A3B8),

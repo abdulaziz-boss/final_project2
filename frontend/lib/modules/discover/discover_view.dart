@@ -19,7 +19,7 @@ class DiscoverView extends GetView<DiscoverController> {
             Icon(Icons.volunteer_activism, color: Color(0xFF047857), size: 28),
             SizedBox(width: 8),
             Text(
-              'ZAKKAL.APL',
+              'GoVolunter',
               style: TextStyle(
                 color: Color(0xFF047857),
                 fontSize: 20,

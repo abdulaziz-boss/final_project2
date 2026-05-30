@@ -3,21 +3,119 @@ import 'package:get/get.dart';
 
 import 'inbox_controller.dart';
 import 'widgets/conversation_tile.dart';
+import '../main_nav/main_nav_controller.dart';
+import '../../data/repositories/auth_repository.dart';
 
 class Inboxpage extends GetView<InboxController> {
   const Inboxpage({super.key});
+
+  Future<void> _logout() async {
+    final confirm = await Get.dialog<bool>(
+      AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Yakin mau keluar?"),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: const Text("Logout"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    await AuthRepository().logout();
+    Get.offAllNamed('/login');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF9FBFC),
+        elevation: 0,
+        scrolledUnderElevation: 1,
+        title: const Row(
+          children: [
+            Icon(Icons.volunteer_activism, color: Color(0xFF047857), size: 28),
+            SizedBox(width: 8),
+            Text(
+              'GoVolunter',
+              style: TextStyle(
+                color: Color(0xFF047857),
+                fontSize: 20,
+                fontFamily: 'Plus Jakarta Sans',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Obx(() {
+            final unreadCount = controller.unreadNotificationsCount;
+
+            return Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.notifications_outlined,
+                    color: Color(0xFF475569),
+                  ),
+                  onPressed: () {
+                    // Pindah ke Tab Inbox (Index 2)
+                    Get.find<MainNavController>().changeIndex(2);
+                    // Pindah ke Sub-Tab Aktivitas (Index 1)
+                    controller.changeTab(1);
+                  },
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Center(
+                        child: Text(
+                          unreadCount > 99 ? '99+' : '$unreadCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Color(0xFF475569)),
+            onPressed: _logout,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ===== HEADER (Sticky) =====
-            _buildHeader(),
-
             // ===== BODY (Scrollable) =====
             Expanded(
               child: SingleChildScrollView(
@@ -44,32 +142,6 @@ class Inboxpage extends GetView<InboxController> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Color(0xFFF9FBFC),
-        border: Border(bottom: BorderSide(color: Color(0xFFF0F3F7))),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      child: const Row(
-        children: [
-          Icon(Icons.volunteer_activism, color: Color(0xFF047857), size: 28),
-          SizedBox(width: 8),
-          Text(
-            'ZAKKAL.APL',
-            style: TextStyle(
-              color: Color(0xFF047857),
-              fontSize: 20,
-              fontFamily: 'Plus Jakarta Sans',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
       ),
     );
   }

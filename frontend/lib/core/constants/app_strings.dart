@@ -1,5 +1,5 @@
 class AppStrings {
-  static const appName = "zakkal.apl";
+  static const appName = "GoVolunter";
 
   static const login = "Login";
   static const register = "Register";

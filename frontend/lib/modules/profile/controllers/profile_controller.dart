@@ -86,6 +86,25 @@ class ProfileController extends GetxController {
   }
 
   Future<void> logout() async {
+    final confirm = await Get.dialog<bool>(
+      AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Yakin mau keluar?"),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: const Text("Logout"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
     await authRepository.logout();
     Get.offAllNamed('/login');
   }

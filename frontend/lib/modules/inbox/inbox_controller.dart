@@ -331,7 +331,7 @@ class InboxController extends GetxController {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildExternalAction(Icons.link, 'Salin Link', () {
-                    Clipboard.setData(ClipboardData(text: 'Lihat kegiatan: ${opportunity.judul}\nhttps://zakkal.apl/opportunity/${opportunity.id}'));
+                    Clipboard.setData(ClipboardData(text: 'Lihat kegiatan: ${opportunity.judul}\nhttps://govolunter.app/opportunity/${opportunity.id}'));
                     Get.back();
                     Get.snackbar('Berhasil', 'Link berhasil disalin');
                   }),
@@ -356,7 +356,7 @@ class InboxController extends GetxController {
         children: [
           GestureDetector(
             onTap: () async {
-              final shareText = 'Lihat kegiatan menarik ini: ${opportunity.judul}\nhttps://zakkal.apl/opportunity/${opportunity.id}';
+              final shareText = 'Lihat kegiatan menarik ini: ${opportunity.judul}\nhttps://govolunter.app/opportunity/${opportunity.id}';
               await sendMessage(conv.id, text: shareText);
               Get.back();
               Get.snackbar('Berhasil', 'Berhasil dibagikan ke $name');

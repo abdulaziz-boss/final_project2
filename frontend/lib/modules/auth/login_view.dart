@@ -103,7 +103,7 @@ class _LoginViewState extends State<LoginView>  {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'zakkal.apl',
+                  'GoVolunter',
                   style: TextStyle(
                     fontFamily: 'Plus Jakarta Sans',
                     color: Color(0xFF191C1D),
