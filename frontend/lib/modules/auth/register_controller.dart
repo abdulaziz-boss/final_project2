@@ -72,10 +72,16 @@ class RegisterController extends GetxController {
       }
     } catch (e) {
       print("REGISTER ERROR: $e");
+      String message = "Terjadi kesalahan";
+      if (e is Exception) {
+        message = e.toString().replaceFirst("Exception: ", "");
+      } else {
+        message = e.toString();
+      }
 
       Get.snackbar(
         "Error",
-        "Terjadi kesalahan",
+        message,
       );
     } finally {
       isLoading.value = false;
@@ -84,9 +90,6 @@ class RegisterController extends GetxController {
 
   @override
   void onClose() {
-    nameC.dispose();
-    emailC.dispose();
-    passwordC.dispose();
     super.onClose();
   }
 }

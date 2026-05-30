@@ -46,10 +46,16 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       print("LOGIN ERROR: $e");
+      String message = "Terjadi kesalahan";
+      if (e is Exception) {
+        message = e.toString().replaceFirst("Exception: ", "");
+      } else {
+        message = e.toString();
+      }
 
       Get.snackbar(
         "Error",
-        "Terjadi kesalahan",
+        message,
       );
     } finally {
       isLoading.value = false;
@@ -88,8 +94,6 @@ class LoginController extends GetxController {
 
   @override
   void onClose() {
-    emailC.dispose();
-    passwordC.dispose();
     super.onClose();
   }
 }

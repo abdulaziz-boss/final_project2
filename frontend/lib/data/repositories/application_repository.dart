@@ -52,8 +52,8 @@ class ApplicationRepository {
   String status, {
   String? reason,
   }) async {
-    await api.patch(
-      '/applications/$id',
+    await api.put(
+      '/applications/$id/status',
       data: {
         'status': status,
 

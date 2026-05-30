@@ -20,8 +20,7 @@ class AuthRepository {
       token ??= data['access_token'] ?? data['token'];
 
       if (token == null) {
-        print("LOGIN ERROR: Token is null. Response: $data");
-        return false;
+        throw Exception("Token tidak valid dari server.");
       }
 
       final userData = data['data']?['user'] ?? data['user'];
@@ -35,10 +34,32 @@ class AuthRepository {
       return true;
     } on DioException catch (e) {
       print("LOGIN DIO ERROR: ${e.response?.data ?? e.message}");
-      return false;
+      String errorMessage = 'Login gagal';
+      if (e.response?.data != null) {
+        final resData = e.response!.data;
+        if (resData['message'] != null) {
+          errorMessage = resData['message'].toString();
+        } else if (resData['errors'] != null) {
+          final errors = resData['errors'] as Map<String, dynamic>;
+          final messages = [];
+          errors.forEach((key, value) {
+            if (value is List) {
+              messages.addAll(value);
+            } else {
+              messages.add(value.toString());
+            }
+          });
+          if (messages.isNotEmpty) {
+            errorMessage = messages.join('\n');
+          }
+        }
+      } else {
+        errorMessage = e.message ?? 'Koneksi ke server terganggu';
+      }
+      throw Exception(errorMessage);
     } catch (e) {
       print("LOGIN UNKNOWN ERROR: $e");
-      return false;
+      throw Exception(e.toString());
     }
   }
 
@@ -48,22 +69,43 @@ class AuthRepository {
 
       final res = response.data;
 
-      // Biasanya Laravel return status success atau data objek
-      if (res == null) return false;
+      if (res == null) {
+        throw Exception("Response kosong dari server.");
+      }
       
-      // Jika ada field status, cek success. Jika tidak, asumsikan sukses jika dapet response data.
       if (res['status'] != null && res['status'] != 'success') {
-        print("REGISTER ERROR: ${res['message']}");
-        return false;
+        throw Exception(res['message'] ?? "Register gagal");
       }
 
       return true;
     } on DioException catch (e) {
       print("REGISTER DIO ERROR: ${e.response?.data ?? e.message}");
-      return false;
+      String errorMessage = 'Register gagal';
+      if (e.response?.data != null) {
+        final resData = e.response!.data;
+        if (resData['errors'] != null) {
+          final errors = resData['errors'] as Map<String, dynamic>;
+          final messages = [];
+          errors.forEach((key, value) {
+            if (value is List) {
+              messages.addAll(value);
+            } else {
+              messages.add(value.toString());
+            }
+          });
+          if (messages.isNotEmpty) {
+            errorMessage = messages.join('\n');
+          }
+        } else if (resData['message'] != null) {
+          errorMessage = resData['message'].toString();
+        }
+      } else {
+        errorMessage = e.message ?? 'Koneksi ke server terganggu';
+      }
+      throw Exception(errorMessage);
     } catch (e) {
       print("REGISTER REPO ERROR: $e");
-      return false;
+      throw Exception(e.toString());
     }
   }
 

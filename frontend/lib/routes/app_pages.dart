@@ -32,12 +32,12 @@ class AppPages {
     GetPage(
       name: '/login',
       page: () => LoginView(),
-      binding: AuthBinding(),
+      binding: LoginBinding(),
     ),
     GetPage(
       name: '/register',
       page: () => RegisterView(),
-      binding: AuthBinding(),
+      binding: RegisterBinding(),
     ),
     GetPage(
       name: '/home',

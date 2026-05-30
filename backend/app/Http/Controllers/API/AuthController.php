@@ -47,7 +47,7 @@ class AuthController extends Controller
                     'name'        => $googleUser->getName(),
                     'email'       => $googleUser->getEmail(),
                     'google_id'   => $googleUser->getId(),
-                    'username'    => explode('@', $googleUser->getEmail())[0] . rand(10, 99),
+                    'username'    => $this->generateUniqueUsername($googleUser->getEmail()),
                     'role'        => 'user',
                     'is_verified' => true,
                     'password'    => null,
@@ -107,7 +107,7 @@ class AuthController extends Controller
 
         $user = User::create([
             'name'        => $request->name,
-            'username'    => explode('@', $request->email)[0] . rand(10, 99),
+            'username'    => $this->generateUniqueUsername($request->email),
             'email'       => $request->email,
             'password'    => Hash::make($request->password),
             'role'        => 'user',
@@ -393,5 +393,24 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => JWTAuth::factory()->getTTL() * 60,
         ];
+    }
+
+    /**
+     * GENERATE UNIQUE USERNAME
+     */
+    protected function generateUniqueUsername($email)
+    {
+        $base = explode('@', $email)[0];
+        // Clean base username to only alphanumeric characters
+        $base = preg_replace('/[^a-zA-Z0-9]/', '', $base);
+        if (empty($base)) {
+            $base = 'user';
+        }
+        
+        $username = $base . rand(100, 9999);
+        while (User::where('username', $username)->exists()) {
+            $username = $base . rand(100, 9999);
+        }
+        return $username;
     }
 }

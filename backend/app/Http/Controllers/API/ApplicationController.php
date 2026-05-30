@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Opportunity;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -157,6 +158,26 @@ class ApplicationController extends Controller
                 'status' => $request->status,
                 'alasan' => $request->alasan,
             ]);
+
+            // 🔥 Kirim Notifikasi ke User Pelamar
+            try {
+                $statusText = $request->status === 'accepted' ? 'Diterima' : 'Ditolak';
+                $judulNotif = "Pendaftaran Relawan " . $statusText;
+                
+                $isiNotif = "Pendaftaran Anda untuk kegiatan \"" . $opportunity->judul . "\" telah " . strtolower($statusText) . " oleh admin.";
+                if ($request->status === 'rejected' && !empty($request->alasan)) {
+                    $isiNotif .= " Alasan: " . $request->alasan;
+                }
+
+                Notification::create([
+                    'user_id' => $application->user_id,
+                    'judul' => $judulNotif,
+                    'isi' => $isiNotif,
+                    'is_read' => false
+                ]);
+            } catch (\Exception $ne) {
+                \Illuminate\Support\Facades\Log::error("Gagal mengirim notifikasi: " . $ne->getMessage());
+            }
 
             return response()->json([
                 'success' => true,
