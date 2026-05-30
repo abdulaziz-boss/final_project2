@@ -19,9 +19,16 @@ import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/opportunity/bindings/opportunity_binding.dart';
 import '../modules/participans/participants_view.dart';
 import '../modules/participans/participants_binding.dart';
+import '../modules/splash/splash_view.dart';
+import '../modules/splash/splash_binding.dart';
 
 class AppPages {
   static final pages = [
+    GetPage(
+      name: '/splash',
+      page: () => const SplashView(),
+      binding: SplashBinding(),
+    ),
     GetPage(
       name: '/login',
       page: () => LoginView(),

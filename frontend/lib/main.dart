@@ -18,16 +18,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🔥 Cek apakah user sudah login (token tersimpan)
-    final storage = StorageService();
-    final token = storage.getToken();
-    final isLoggedIn = token != null && token.isNotEmpty;
-
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialBinding: CoreBinding(),
-      // Jika token ada → langsung ke /main, jika tidak → ke /login
-      initialRoute: isLoggedIn ? Routes.main : Routes.login,
+      initialRoute: Routes.splash,
       getPages: AppPages.pages,
     );
   }
