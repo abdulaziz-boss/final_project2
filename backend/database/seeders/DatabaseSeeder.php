@@ -28,5 +28,8 @@ class DatabaseSeeder extends Seeder
         foreach ($categories as $category) {
             \App\Models\Category::firstOrCreate(['slug' => $category['slug']], $category);
         }
+
+        // Seed users and opportunities
+        $this->call(DataSeeder::class);
     }
 }

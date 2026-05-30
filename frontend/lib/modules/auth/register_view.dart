@@ -6,8 +6,6 @@ class RegisterView extends GetView<RegisterController> {
   RegisterView({super.key});
   
   // Local state untuk kontrol UI
-  final isObscure = true.obs;
-  final isChecked = false.obs; // Checkbox untuk Syarat & Ketentuan
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +91,7 @@ class RegisterView extends GetView<RegisterController> {
                           width: double.infinity,
                           height: 52,
                           child: ElevatedButton(
-                            onPressed: (controller.isLoading.value || !isChecked.value)
+                            onPressed: (controller.isLoading.value || !controller.isChecked.value)
                                 ? null // Disable kalau belum centang atau sedang loading
                                 : () {
                                     if (controller.nameC.text.isEmpty ||
@@ -262,7 +260,7 @@ class RegisterView extends GetView<RegisterController> {
         const SizedBox(height: 8),
         Obx(() => TextField(
           controller: controller.passwordC,
-          obscureText: isObscure.value,
+          obscureText: controller.isObscure.value,
           style: const TextStyle(fontSize: 15),
           decoration: InputDecoration(
             hintText: 'Minimal 8 karakter',
@@ -270,11 +268,11 @@ class RegisterView extends GetView<RegisterController> {
             prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF6C7A71), size: 22),
             suffixIcon: IconButton(
               icon: Icon(
-                isObscure.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                controller.isObscure.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                 color: const Color(0xFF6C7A71),
                 size: 22,
               ),
-              onPressed: () => isObscure.value = !isObscure.value, // Toggle Password
+              onPressed: () => controller.isObscure.value = !controller.isObscure.value, // Toggle Password
             ),
             filled: true,
             fillColor: const Color(0xFFF3F4F5),
@@ -299,27 +297,27 @@ class RegisterView extends GetView<RegisterController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Obx(() => GestureDetector(
-          onTap: () => isChecked.value = !isChecked.value,
+          onTap: () => controller.isChecked.value = !controller.isChecked.value,
           child: Container(
             margin: const EdgeInsets.only(top: 2, right: 12),
             width: 22,
             height: 22,
             decoration: BoxDecoration(
-              color: isChecked.value ? const Color(0xFF006C49) : Colors.white,
+              color: controller.isChecked.value ? const Color(0xFF006C49) : Colors.white,
               border: Border.all(
-                color: isChecked.value ? const Color(0xFF006C49) : const Color(0xFFBBCABF),
+                color: controller.isChecked.value ? const Color(0xFF006C49) : const Color(0xFFBBCABF),
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: isChecked.value 
+            child: controller.isChecked.value
                 ? const Icon(Icons.check, size: 16, color: Colors.white)
                 : null,
           ),
         )),
         Expanded(
           child: GestureDetector(
-            onTap: () => isChecked.value = !isChecked.value, // Klik text juga mencentang
+            onTap: () => controller.isChecked.value = !controller.isChecked.value, // Klik text juga mencentang
             child: RichText(
               text: const TextSpan(
                 style: TextStyle(

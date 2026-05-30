@@ -18,19 +18,19 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('google_id')->nullable(); // Tambahkan ini untuk login google
             $table->string('password')->nullable(); // Nullable jika user login via Google
-            
+
             // Kolom Role & Verifikasi Akun
             $table->enum('role', ['super_admin', 'admin', 'user'])->default('user');
-            $table->boolean('is_verified')->default(false); 
-            
+            $table->boolean('is_verified')->default(false);
+
             // Relasi ke Tabel Organisasi (Penting untuk Fitur Upgrade)
-            $table->unsignedBigInteger('organization_id')->nullable(); 
+            $table->unsignedBigInteger('organization_id')->nullable();
 
             // Profil & Media
             $table->string('foto_profil')->nullable();
             $table->text('bio')->nullable();
             $table->string('lokasi')->nullable();
-            
+
             $table->rememberToken();
             $table->timestamps();
 

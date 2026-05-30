@@ -3,14 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'login_controller.dart';
 
-class LoginView extends StatelessWidget {
-  LoginView({Key? key}) : super(key: key);
 
-  final LoginController authC = Get.put(LoginController());
-  final TextEditingController emailC = TextEditingController();
-  final TextEditingController passC = TextEditingController();
-  final RxBool isObscure = true.obs;
-  final RxBool isRemember = false.obs;
+class LoginView extends StatefulWidget {
+  const LoginView({super.key});
+
+  @override
+  State<LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView>  {
+
+  final authC = Get.find<LoginController>();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +65,9 @@ class LoginView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04), // shadow-[0_40px_80px_rgba(0,0,0,0.04)]
+                      color: Colors.black.withOpacity(
+                        0.04,
+                      ), // shadow-[0_40px_80px_rgba(0,0,0,0.04)]
                       offset: const Offset(0, 40),
                       blurRadius: 80,
                     ),
@@ -90,7 +96,11 @@ class LoginView extends StatelessWidget {
           const Center(
             child: Column(
               children: [
-                Icon(Icons.volunteer_activism, color: Color(0xFF006C49), size: 48),
+                Icon(
+                  Icons.volunteer_activism,
+                  color: Color(0xFF006C49),
+                  size: 48,
+                ),
                 SizedBox(height: 8),
                 Text(
                   'zakkal.apl',
@@ -120,7 +130,7 @@ class LoginView extends StatelessWidget {
             ),
           ),
           _CustomTextField(
-            controller: emailC,
+            controller: authC.emailC,
             hintText: 'example@email.com',
             icon: Icons.mail_outline,
             keyboardType: TextInputType.emailAddress,
@@ -144,80 +154,94 @@ class LoginView extends StatelessWidget {
               ],
             ),
           ),
-          Obx(() => _CustomTextField(
-            controller: passC,
-            hintText: '••••••••',
-            icon: Icons.lock_outline,
-            obscureText: isObscure.value,
-            suffixIcon: IconButton(
-               icon: Icon(
-                 isObscure.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                 color: const Color(0xFF6C7A71),
-                 size: 20,
-               ),
-               onPressed: () {
-                 isObscure.value = !isObscure.value;
-               },
-            )
-          )),
+          Obx(
+            () => _CustomTextField(
+              controller: authC.passwordC,
+              hintText: '••••••••',
+              icon: Icons.lock_outline,
+              obscureText: authC.isObscure.value,
+              suffixIcon: IconButton(
+                icon: Icon(
+                  authC.isObscure.value
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+                onPressed: () {
+                  authC.isObscure.value =
+                      !authC.isObscure.value;
+                },
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
           // Submit
-          Obx(() => AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: double.infinity,
-            height: 56,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF006C49), Color(0xFF10B981)], // primary to primary-container
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF006C49).withOpacity(0.2),
-                  offset: const Offset(0, 8),
-                  blurRadius: 16,
+          Obx(
+            () => AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: double.infinity,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF006C49),
+                    Color(0xFF10B981),
+                  ], // primary to primary-container
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
                 ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
                 borderRadius: BorderRadius.circular(28),
-                onTap: authC.isLoading.value ? null : () {
-                  authC.login(emailC.text, passC.text);
-                },
-                child: Center(
-                  child: authC.isLoading.value 
-                    ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 3,
-                        ),
-                      )
-                    : const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Masuk',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF006C49).withOpacity(0.2),
+                    offset: const Offset(0, 8),
+                    blurRadius: 16,
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(28),
+                  onTap: authC.isLoading.value
+                      ? null
+                      : () {
+                          authC.login();
+                        },
+                  child: Center(
+                    child: authC.isLoading.value
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
                               color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                              strokeWidth: 3,
                             ),
+                          )
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Masuk',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.arrow_forward,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ],
                           ),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-                        ],
-                      ),
+                  ),
                 ),
               ),
             ),
-          )),
+          ),
           const SizedBox(height: 24),
           // Divider "Atau"
           Row(
@@ -239,52 +263,56 @@ class LoginView extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           // Google Login Button
-          Obx(() => SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton(
-              onPressed: authC.isLoading.value ? null : () {
-                authC.loginWithGoogle();
-              },
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
+          Obx(
+            () => SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: OutlinedButton(
+                onPressed: authC.isLoading.value
+                    ? null
+                    : () {
+                        authC.loginWithGoogle();
+                      },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  backgroundColor: Colors.white,
                 ),
-                backgroundColor: Colors.white,
-              ),
-              child: authC.isLoading.value
-                  ? const Center(
-                      child: SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Color(0xFF3C4A42),
-                        ),
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.network(
-                          'https://img.icons8.com/color/48/000000/google-logo.png',
+                child: authC.isLoading.value
+                    ? const Center(
+                        child: SizedBox(
                           height: 24,
-                        ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          'Masuk dengan Google',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
                             color: Color(0xFF3C4A42),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ],
-                    ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.network(
+                            'https://img.icons8.com/color/48/000000/google-logo.png',
+                            height: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Masuk dengan Google',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              color: Color(0xFF3C4A42),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
             ),
-          )),
+          ),
           const SizedBox(height: 32),
           Center(
             child: Wrap(
@@ -300,7 +328,7 @@ class LoginView extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Get.toNamed('/register');
+                    Get.offNamed('/register');
                   },
                   child: const Text(
                     'Daftar sekarang',
@@ -391,7 +419,9 @@ class _CustomTextFieldState extends State<_CustomTextField> {
               ),
               prefixIcon: Icon(
                 widget.icon,
-                color: _isFocused ? const Color(0xFF0051D5) : const Color(0xFF6C7A71),
+                color: _isFocused
+                    ? const Color(0xFF0051D5)
+                    : const Color(0xFF6C7A71),
                 size: 20,
               ),
               suffixIcon: widget.suffixIcon,
@@ -423,4 +453,3 @@ class _CustomTextFieldState extends State<_CustomTextField> {
     );
   }
 }
-

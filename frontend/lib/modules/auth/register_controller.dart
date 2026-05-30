@@ -5,50 +5,78 @@ import '../../../data/repositories/auth_repository.dart';
 class RegisterController extends GetxController {
   final AuthRepository repo = AuthRepository();
 
-  // controller input
-  
   final nameC = TextEditingController();
   final emailC = TextEditingController();
   final passwordC = TextEditingController();
 
   var isLoading = false.obs;
+  var isObscure = true.obs;
+  var isChecked = false.obs;
 
   Future<void> register() async {
     try {
-      // VALIDASI BASIC
-      if (nameC.text.isEmpty ||
-          emailC.text.isEmpty ||
-          passwordC.text.isEmpty) {
-        Get.snackbar("Error", "Semua field wajib diisi");
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      if (nameC.text.trim().isEmpty ||
+          emailC.text.trim().isEmpty ||
+          passwordC.text.trim().isEmpty) {
+        Get.snackbar(
+          "Error",
+          "Semua field wajib diisi",
+        );
         return;
       }
 
-      if (!GetUtils.isEmail(emailC.text)) {
-        Get.snackbar("Error", "Email tidak valid");
+      if (!GetUtils.isEmail(emailC.text.trim())) {
+        Get.snackbar(
+          "Error",
+          "Email tidak valid",
+        );
+        return;
+      }
+
+      if (passwordC.text.length < 6) {
+        Get.snackbar(
+          "Error",
+          "Password minimal 6 karakter",
+        );
         return;
       }
 
       isLoading.value = true;
 
       final success = await repo.register({
-        
-        "name": nameC.text,
-        "email": emailC.text,
-        "password": passwordC.text,
-        "password_confirmation": passwordC.text,
+        "name": nameC.text.trim(),
+        "email": emailC.text.trim(),
+        "password": passwordC.text.trim(),
+        "password_confirmation": passwordC.text.trim(),
         "role": "user",
       });
 
       if (success) {
-        Get.snackbar("Success", "Register berhasil");
+        nameC.clear();
+        emailC.clear();
+        passwordC.clear();
+
+        Get.snackbar(
+          "Success",
+          "Register berhasil",
+        );
+
         Get.offAllNamed('/login');
       } else {
-        Get.snackbar("Error", "Register gagal");
+        Get.snackbar(
+          "Error",
+          "Register gagal",
+        );
       }
-
     } catch (e) {
-      print("ERROR REGISTER: $e");
-      Get.snackbar("Error", "Terjadi kesalahan");
+      print("REGISTER ERROR: $e");
+
+      Get.snackbar(
+        "Error",
+        "Terjadi kesalahan",
+      );
     } finally {
       isLoading.value = false;
     }

@@ -14,15 +14,11 @@ class SuperAdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // cek login
         if (!Auth::check()) {
-
-            return redirect('/superadmin/login');
+            return redirect()->route('superadmin.login');
         }
 
-        // cek role
         if (Auth::user()->role !== 'super_admin') {
-
             abort(403, 'Akses ditolak');
         }
 

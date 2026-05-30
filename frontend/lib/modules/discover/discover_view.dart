@@ -10,72 +10,75 @@ class DiscoverView extends GetView<DiscoverController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
-        child: Column(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF9FBFC),
+        elevation: 0,
+        scrolledUnderElevation: 1,
+        title: const Row(
           children: [
-            _buildHeader(),
-            _buildCategoryChips(),
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (controller.opportunities.isEmpty) {
-                  return _buildEmptyState();
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.only(top: 8),
-                  itemCount: controller.opportunities.length,
-                  itemBuilder: (context, index) {
-                    final data = controller.opportunities[index];
-                    return OpportunityCard(data: data);
-                  },
-                );
-              }),
+            Icon(Icons.volunteer_activism, color: Color(0xFF047857), size: 28),
+            SizedBox(width: 8),
+            Text(
+              'ZAKKAL.APL',
+              style: TextStyle(
+                color: Color(0xFF047857),
+                fontSize: 20,
+                fontFamily: 'Plus Jakarta Sans',
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
       ),
+      body: Column(
+        children: [
+          _buildSearchField(),
+          _buildCategoryChips(),
+          Expanded(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (controller.opportunities.isEmpty) {
+                return _buildEmptyState();
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.only(top: 8),
+                itemCount: controller.opportunities.length,
+                itemBuilder: (context, index) {
+                  final data = controller.opportunities[index];
+                  return OpportunityCard(data: data);
+                },
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildSearchField() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Discover',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF191C1D),
-              fontFamily: 'Plus Jakarta Sans',
-            ),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F3F4),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Cari kegiatan...',
+            hintStyle: TextStyle(color: Color(0xFF8C8D8E), fontSize: 15),
+            prefixIcon: Icon(Icons.search, color: Color(0xFF006C49)),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(vertical: 15),
           ),
-          const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F3F4),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Cari kegiatan...',
-                hintStyle: TextStyle(color: Color(0xFF8C8D8E), fontSize: 15),
-                prefixIcon: Icon(Icons.search, color: Color(0xFF006C49)),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(vertical: 15),
-              ),
-              onChanged: (value) {
-                controller.searchQuery.value = value;
-              },
-            ),
-          ),
-        ],
+          onChanged: (value) {
+            controller.searchQuery.value = value;
+          },
+        ),
       ),
     );
   }

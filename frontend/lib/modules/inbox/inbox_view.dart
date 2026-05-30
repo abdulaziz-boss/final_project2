@@ -59,14 +59,14 @@ class Inboxpage extends GetView<InboxController> {
       child: const Row(
         children: [
           Icon(Icons.volunteer_activism, color: Color(0xFF047857), size: 28),
-          SizedBox(width: 12),
+          SizedBox(width: 8),
           Text(
             'ZAKKAL.APL',
             style: TextStyle(
               color: Color(0xFF047857),
               fontSize: 20,
               fontFamily: 'Plus Jakarta Sans',
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],

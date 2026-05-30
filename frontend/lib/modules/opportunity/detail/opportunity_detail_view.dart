@@ -368,11 +368,39 @@ class OpportunityDetailView extends GetView<OpportunityDetailController> {
                         color: textDark,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    CommentWidget(opportunityId: data.id),
-                    CommentInput(opportunityId: data.id),
 
-                    const SizedBox(height: 100),
+                    const SizedBox(height: 16),
+
+                    // 🔥 FIX OVERFLOW TANPA UBAH UI
+                    Container(
+                      constraints: const BoxConstraints(
+                        minHeight: 200,
+                        maxHeight: 500,
+                      ),
+
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+
+                      child: Column(
+                        children: [
+                          // LIST COMMENT
+                          Expanded(
+                            child: CommentWidget(
+                              opportunityId: data.id,
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // INPUT COMMENT
+                          CommentInput(
+                            opportunityId: data.id,
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

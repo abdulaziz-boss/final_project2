@@ -1,28 +1,60 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../core/services/google_auth_service.dart';
 
-
 class LoginController extends GetxController {
   final AuthRepository repo = AuthRepository();
+  final GoogleAuthService googleService = GoogleAuthService();
+
+  final emailC = TextEditingController();
+  final passwordC = TextEditingController();
 
   var isLoading = false.obs;
+  var isObscure = true.obs;
 
-  Future<void> login(String email, String password) async {
-    isLoading.value = true;
+  Future<void> login() async {
+    try {
+      FocusManager.instance.primaryFocus?.unfocus();
 
-    final success = await repo.login(email, password);
+      if (emailC.text.trim().isEmpty ||
+          passwordC.text.trim().isEmpty) {
+        Get.snackbar(
+          "Error",
+          "Email dan password wajib diisi",
+        );
+        return;
+      }
 
-    isLoading.value = false;
+      isLoading.value = true;
 
-    if (success) {
-      Get.offAllNamed('/main');
-    } else {
-      Get.snackbar("Error", "Login gagal");
+      final success = await repo.login(
+        emailC.text.trim(),
+        passwordC.text.trim(),
+      );
+
+      if (success) {
+        emailC.clear();
+        passwordC.clear();
+
+        Get.offAllNamed('/main');
+      } else {
+        Get.snackbar(
+          "Error",
+          "Login gagal",
+        );
+      }
+    } catch (e) {
+      print("LOGIN ERROR: $e");
+
+      Get.snackbar(
+        "Error",
+        "Terjadi kesalahan",
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
-
-  final GoogleAuthService googleService = GoogleAuthService();
 
   Future<void> loginWithGoogle() async {
     try {
@@ -30,24 +62,34 @@ class LoginController extends GetxController {
 
       final idToken = await googleService.signIn();
 
-      if (idToken == null) {
-        isLoading.value = false;
-        print("GOOGLE SIGN IN: User cancelled or failed to get idToken");
-        return;
-      }
+      if (idToken == null) return;
 
       final success = await repo.loginWithGoogle(idToken);
 
       if (success) {
         Get.offAllNamed('/main');
       } else {
-        Get.snackbar("Error", "Login Google gagal");
+        Get.snackbar(
+          "Error",
+          "Login Google gagal",
+        );
       }
     } catch (e) {
-      print("GOOGLE SIGN IN ERROR: $e");
-      Get.snackbar("Error", "Terjadi kesalahan saat Login Google");
+      print("GOOGLE ERROR: $e");
+
+      Get.snackbar(
+        "Error",
+        "Terjadi kesalahan",
+      );
     } finally {
       isLoading.value = false;
     }
+  }
+
+  @override
+  void onClose() {
+    emailC.dispose();
+    passwordC.dispose();
+    super.onClose();
   }
 }
