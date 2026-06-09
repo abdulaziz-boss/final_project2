@@ -8,7 +8,6 @@ import '../../shared/like/like_widget.dart';
 import '../../shared/comment/comment_widget.dart';
 import '../../shared/comment/comment_input.dart';
 import '../../opportunity/controllers/opportunity_controller.dart';
-import '../../opportunity/apply/apply_controller.dart';
 
 class OpportunityDetailView extends GetView<OpportunityDetailController> {
   const OpportunityDetailView({super.key});
@@ -47,7 +46,10 @@ class OpportunityDetailView extends GetView<OpportunityDetailController> {
     }
 
     if (opportunityController.userRole.value == 'admin') {
-      Get.toNamed('/participants', arguments: data.id);
+      Get.toNamed('/participants', arguments: {
+        'id': data.id,
+        'createdBy': data.createdBy,
+      });
       return;
     }
 

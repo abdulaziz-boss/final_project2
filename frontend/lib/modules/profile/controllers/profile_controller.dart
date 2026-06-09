@@ -76,6 +76,21 @@ class ProfileController extends GetxController {
     }
   }
 
+  /// Refresh data user saat ini dari /auth/me agar relasi organization ikut termuat
+  Future<void> refreshFromMe() async {
+    try {
+      isLoading.value = true;
+      final data = await authRepository.me();
+      if (data != null) {
+        user.value = UserModel.fromJson(data);
+      }
+    } catch (e) {
+      debugPrint('refreshFromMe error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void startChat() {
     if (isCurrentUser.value) return;
     if (Get.isRegistered<InboxController>()) {
@@ -107,123 +122,5 @@ class ProfileController extends GetxController {
 
     await authRepository.logout();
     Get.offAllNamed('/login');
-  }
-
-  void showUpgradeForm() {
-    final formKey = GlobalKey<FormState>();
-    final namaController = TextEditingController();
-    final deskripsiController = TextEditingController();
-    final alamatController = TextEditingController();
-    final websiteController = TextEditingController();
-
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Upgrade ke Admin (Daftar Organisasi)',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: namaController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama Organisasi',
-                  ),
-                  validator: (v) =>
-                      v!.isEmpty ? 'Nama tidak boleh kosong' : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: deskripsiController,
-                  decoration: const InputDecoration(
-                    labelText: 'Deskripsi Singkat',
-                  ),
-                  validator: (v) =>
-                      v!.isEmpty ? 'Deskripsi tidak boleh kosong' : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: alamatController,
-                  decoration: const InputDecoration(
-                    labelText: 'Alamat (Opsional)',
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: websiteController,
-                  decoration: const InputDecoration(
-                    labelText: 'Website (Opsional)',
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF006C49),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () async {
-                      if (formKey.currentState!.validate()) {
-                        Get.back();
-                        await _requestUpgrade({
-                          'nama_organisasi': namaController.text,
-                          'deskripsi': deskripsiController.text,
-                          'alamat': alamatController.text,
-                          'website': websiteController.text,
-                        });
-                      }
-                    },
-                    child: const Text('Kirim Permintaan'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      isScrollControlled: true,
-    );
-  }
-
-  Future<void> _requestUpgrade(Map<String, dynamic> data) async {
-    try {
-      isLoading.value = true;
-      final res = await userRepository.requestUpgrade(data);
-      if (res['success']) {
-        Get.snackbar(
-          'Sukses',
-          res['message'],
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-      } else {
-        Get.snackbar('Error', res['message'] ?? 'Gagal');
-      }
-    } on dio.DioException catch (e) {
-      final msg = e.response?.data['message'] ?? 'Gagal mengirim permintaan';
-      Get.snackbar(
-        'Error',
-        msg,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
-    } finally {
-      isLoading.value = false;
-    }
   }
 }

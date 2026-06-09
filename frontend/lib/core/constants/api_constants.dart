@@ -2,13 +2,7 @@ import 'package:flutter/foundation.dart';
 
 class ApiConstants {
   // Jika di Web (Chrome), gunakan localhost. Jika di HP, gunakan IP Laptop.
-  static String get host {
-    if (kIsWeb) {
-      return "http://172.18.20.37:8000";
-    } else {
-      return "http://192.168.1.8:8000";
-    }
-  }
+  static const String host = "https://volunterapi.jiis.my.id";
 
   static String get baseUrl => "$host/api/";
   static String get storageUrl => "$host/storage";

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend_final/data/repositories/opportunity_repository.dart';
-import 'package:frontend_final/modules/main_nav/main_nav_controller.dart';
-import 'package:frontend_final/modules/home/home_controller.dart';
 
 class CreatePostController extends GetxController {
   final OpportunityRepository opportunityRepository = OpportunityRepository();

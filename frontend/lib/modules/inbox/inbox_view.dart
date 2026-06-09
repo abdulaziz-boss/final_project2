@@ -4,34 +4,9 @@ import 'package:get/get.dart';
 import 'inbox_controller.dart';
 import 'widgets/conversation_tile.dart';
 import '../main_nav/main_nav_controller.dart';
-import '../../data/repositories/auth_repository.dart';
 
 class Inboxpage extends GetView<InboxController> {
   const Inboxpage({super.key});
-
-  Future<void> _logout() async {
-    final confirm = await Get.dialog<bool>(
-      AlertDialog(
-        title: const Text("Logout"),
-        content: const Text("Yakin mau keluar?"),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: const Text("Batal"),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: const Text("Logout"),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
-    await AuthRepository().logout();
-    Get.offAllNamed('/login');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,10 +81,6 @@ class Inboxpage extends GetView<InboxController> {
               ],
             );
           }),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Color(0xFF475569)),
-            onPressed: _logout,
-          ),
         ],
       ),
       body: SafeArea(

@@ -7,6 +7,8 @@ import '../bindings/edit_profile_binding.dart';
 import '../../post/create_post_view.dart';
 import '../../post/create_post_binding.dart';
 import '../../../core/constants/api_constants.dart';
+import '../../upgrade/upgrade_binding.dart';
+import '../../upgrade/upgrade_view.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -202,17 +204,54 @@ class ProfileView extends GetView<ProfileController> {
                                   ),
                                 ),
                               ] else if (user.role == 'user') ...[
-                                Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF006C49),
-                                      foregroundColor: Colors.white,
-                                      elevation: 0,
+                                if (user.organizationId != null &&
+                                    (user.organization == null ||
+                                        !user.organization!.isVerified))
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                      child: const Center(
+                                        child: Text(
+                                          'Menunggu Verifikasi',
+                                          style: TextStyle(
+                                            color: Colors.orange,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    onPressed: controller.showUpgradeForm,
-                                    child: const Text('Upgrade Premium'),
+                                  )
+                                else
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF006C49,
+                                        ),
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                      ),
+                                      onPressed: () async {
+                                        await Get.to(
+                                          () => const UpgradePremiumView(),
+                                          binding: UpgradeBinding(),
+                                        );
+                                        // Fallback refresh jika user menekan tombol Back manual
+                                        controller.getProfile();
+                                      },
+                                      child: const Text('Upgrade Premium'),
+                                    ),
                                   ),
-                                ),
                               ],
                             ],
                           ),
@@ -381,14 +420,43 @@ class ProfileView extends GetView<ProfileController> {
                         ),
                         const SizedBox(height: 16),
                         if (controller.isCurrentUser.value)
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF006C49),
-                              foregroundColor: Colors.white,
+                          if (user.role == 'user' &&
+                              user.organizationId != null &&
+                              (user.organization == null ||
+                                  !user.organization!.isVerified))
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 24,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.orange),
+                              ),
+                              child: const Text(
+                                'Menunggu Verifikasi Premium',
+                                style: TextStyle(
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
+                          else
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF006C49),
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: () async {
+                                await Get.to(
+                                  () => const UpgradePremiumView(),
+                                  binding: UpgradeBinding(),
+                                );
+                                controller.getProfile();
+                              },
+                              child: const Text('Upgrade ke Premium'),
                             ),
-                            onPressed: controller.showUpgradeForm,
-                            child: const Text('Upgrade ke Premium'),
-                          ),
                       ],
                     ),
                   ),

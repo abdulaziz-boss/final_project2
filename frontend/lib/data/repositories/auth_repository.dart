@@ -153,4 +153,16 @@ class AuthRepository {
       print("LOGOUT API ERROR: $e");
     }
   }
+
+  /// Ambil data user yang sedang login dari /auth/me (termasuk relasi organization)
+  Future<Map<String, dynamic>?> me() async {
+    try {
+      final response = await provider.me();
+      final data = response.data;
+      return data['data'] ?? data['user'];
+    } catch (e) {
+      print("ME ERROR: $e");
+      return null;
+    }
+  }
 }

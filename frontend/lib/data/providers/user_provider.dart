@@ -15,7 +15,7 @@ class UserProvider {
     ); // Usually POST for multipart
   }
 
-  Future<Response> requestUpgrade(Map<String, dynamic> data) async {
+  Future<Response> requestUpgrade(dynamic data) async {
     return await _api.dio.post('/organization', data: data);
   }
 }

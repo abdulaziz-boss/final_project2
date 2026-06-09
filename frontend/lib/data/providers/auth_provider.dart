@@ -27,6 +27,10 @@ class AuthProvider {
   }
 
   Future<Response> logout() async {
-    return await api.dio.post('/logout');
+    return await api.dio.post('auth/logout');
+  }
+
+  Future<Response> me() async {
+    return await api.dio.get('auth/me');
   }
 }

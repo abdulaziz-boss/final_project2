@@ -100,7 +100,24 @@
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async=""></script>
+  <!-- Kerangka inisialisasi Flutter Web versi terbaru -->
+  <script src="flutter_bootstrap.js" async></script>
 
-
-</body></html>
+  <script>
+    window.addEventListener('load', function(ev) {
+      // Menunggu objek _flutter siap dari flutter_bootstrap.js
+      if (window._flutter) {
+        _flutter.loader.load({
+          // 🔥 Tetap paksa menggunakan HTML renderer
+          renderer: "html",
+          onEntrypointLoaded: function(engineInitializer) {
+            engineInitializer.initializeEngine().then(function(appRunner) {
+              appRunner.runApp();
+            });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

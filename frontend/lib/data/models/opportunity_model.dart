@@ -54,10 +54,23 @@ class OpportunityModel {
 
   factory OpportunityModel.fromJson(Map<String, dynamic> json) {
     return OpportunityModel(
-      id: json['id'],
+      // 🔥 Amankan ID Utama (Wajib int, jika string kita parse otomatis)
+      id: json['id'] is int 
+          ? json['id'] 
+          : (int.tryParse(json['id'].toString()) ?? 0),
 
-      organizationId: json['organization_id'],
-      createdBy: json['created_by'],
+      // 🔥 Amankan Foreign Keys (Bisa bernilai null)
+      organizationId: json['organization_id'] != null
+          ? (json['organization_id'] is int 
+              ? json['organization_id'] as int 
+              : int.tryParse(json['organization_id'].toString()))
+          : null,
+          
+      createdBy: json['created_by'] != null
+          ? (json['created_by'] is int 
+              ? json['created_by'] as int 
+              : int.tryParse(json['created_by'].toString()))
+          : null,
 
       judul: json['judul'] ?? '',
       deskripsi: json['deskripsi'] ?? '',
@@ -69,29 +82,37 @@ class OpportunityModel {
       tanggalMulai: json['tanggal_mulai'] ?? '',
       tanggalSelesai: json['tanggal_selesai'],
 
-      // 🔥 handle string → int
+      // handle string → int (Sudah benar bawaanmu)
       kuota: int.tryParse(json['kuota'].toString()) ?? 0,
 
       mapsUrl: json['maps_url'],
       foto: json['foto'],
 
       createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at'])
+          ? DateTime.tryParse(json['created_at'].toString())
           : null,
 
       updatedAt: json['updated_at'] != null
-          ? DateTime.tryParse(json['updated_at'])
+          ? DateTime.tryParse(json['updated_at'].toString())
           : null,
 
-      // 🔥 creator = user
+      // creator = user
       creator: json['creator'] != null
           ? UserModel.fromJson(json['creator'])
           : null,
+          
       organization: json['organization'] != null
           ? OrganizationModel.fromJson(json['organization'])
           : null,
-      likesCount: json['likes_count'] ?? 0,
-      commentsCount: json['comments_count'] ?? 0,
+          
+      // 🔥 Amankan juga Likes & Comments count jika di DB tipenya string
+      likesCount: json['likes_count'] is int 
+          ? json['likes_count'] 
+          : (int.tryParse(json['likes_count'].toString()) ?? 0),
+          
+      commentsCount: json['comments_count'] is int 
+          ? json['comments_count'] 
+          : (int.tryParse(json['comments_count'].toString()) ?? 0),
     );
   }
 }

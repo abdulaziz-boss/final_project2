@@ -17,11 +17,24 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      id: json['id'],
-      userId: json['user_id'],
+      // 🔥 Amankan ID Utama Notifikasi
+      id: json['id'] is int 
+          ? json['id'] 
+          : (int.tryParse(json['id'].toString()) ?? 0),
+
+      // 🔥 Amankan ID User pemilik notifikasi
+      userId: json['user_id'] is int 
+          ? json['user_id'] 
+          : (int.tryParse(json['user_id'].toString()) ?? 0),
+
       judul: json['judul'] ?? '',
       isi: json['isi'] ?? '',
-      isRead: json['is_read'] == 1 || json['is_read'] == true,
+      
+      // Keamanan boolean bawaanmu sudah top! Kita tambahkan pengecekan string '1' sekalian biar super aman
+      isRead: json['is_read'] == 1 || 
+              json['is_read'] == true || 
+              json['is_read'].toString() == '1',
+              
       createdAt: json['created_at'] ?? '',
     );
   }

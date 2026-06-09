@@ -15,7 +15,7 @@ class UserRepository {
     return UserModel.fromJson(response.data['data']);
   }
 
-  Future<Map<String, dynamic>> requestUpgrade(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> requestUpgrade(dynamic data) async {
     final response = await provider.requestUpgrade(data);
     return response.data;
   }

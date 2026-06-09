@@ -92,5 +92,6 @@ class AppPages {
       binding: ParticipantsBinding(),
     ),
     
+    
   ];
 }

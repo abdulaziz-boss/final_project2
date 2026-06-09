@@ -83,7 +83,7 @@ class EditProfileController extends GetxController {
         currentUserData['foto_profil_url'] = updatedUser.fotoProfilUrl;
         currentUserData['foto_profil'] = updatedUser.fotoProfil;
         await storageService.saveUserData(
-          token: await storageService.getToken() ?? '',
+          token: storageService.getToken() ?? '',
           role: currentUserData['role'],
           user: currentUserData,
         );

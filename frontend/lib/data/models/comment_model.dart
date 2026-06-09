@@ -21,13 +21,35 @@ class CommentModel {
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return CommentModel(
-      id: json['id'],
-      userId: json['user_id'],
-      opportunityId: int.parse(json['opportunity_id'].toString()),
-      comment: json['comment'],
-      parentId: json['parent_id'],
-      createdAt: DateTime.parse(json['created_at']),
-      user: UserModel.fromJson(json['user']),
+      // 🔥 Amankan ID Utama komentar
+      id: json['id'] is int 
+          ? json['id'] 
+          : (int.tryParse(json['id'].toString()) ?? 0),
+
+      // 🔥 Amankan ID User yang berkomentar
+      userId: json['user_id'] is int 
+          ? json['user_id'] 
+          : (int.tryParse(json['user_id'].toString()) ?? 0),
+
+      // Amankan ID Opportunity (Pola disamakan agar lebih clean)
+      opportunityId: json['opportunity_id'] is int 
+          ? json['opportunity_id'] 
+          : (int.tryParse(json['opportunity_id'].toString()) ?? 0),
+
+      comment: json['comment'] ?? '',
+
+      // 🔥 Amankan Parent ID untuk reply komentar (bisa bernilai null)
+      parentId: json['parent_id'] != null
+          ? (json['parent_id'] is int 
+              ? json['parent_id'] as int 
+              : int.tryParse(json['parent_id'].toString()))
+          : null,
+
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now())
+          : DateTime.now(),
+
+      user: UserModel.fromJson(json['user'] ?? {}),
     );
   }
 }

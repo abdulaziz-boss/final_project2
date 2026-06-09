@@ -197,7 +197,10 @@ class _OpportunityCardState extends State<OpportunityCard> {
               onTap: isOpen
                   ? () {
                       if (isAdmin) {
-                        Get.toNamed('/participants', arguments: d.id);
+                        Get.toNamed(
+                          '/participants',
+                          arguments: {'id': d.id, 'createdBy': d.createdBy},
+                        );
                       } else {
                         _openDetail();
                       }

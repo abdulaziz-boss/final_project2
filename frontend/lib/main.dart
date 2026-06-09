@@ -4,7 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
 import 'core/bindings/core_binding.dart';
-import 'core/services/storage_service.dart';
+import 'core/widgets/mobile_frame.dart'; // Import file frame yang baru dibuat
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +23,11 @@ class MyApp extends StatelessWidget {
       initialBinding: CoreBinding(),
       initialRoute: Routes.splash,
       getPages: AppPages.pages,
+      
+      // Menggunakan builder global agar semua halaman otomatis terbungkus frame HP saat di Web/Laptop
+      builder: (context, child) {
+        return MobileFrame(child: child ?? const SizedBox());
+      },
     );
   }
 }

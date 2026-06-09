@@ -30,28 +30,51 @@ class ConversationModel {
     String? lastMsg;
     String? lastMsgTime;
     int? lastMsgSenderId;
+
     if (json['latest_message'] != null) {
       lastMsg = json['latest_message']['message'];
       lastMsgTime = json['latest_message']['created_at'];
-      lastMsgSenderId = json['latest_message']['sender_id'];
+      // 🔥 Amankan sender_id di dalam nested object latest_message
+      lastMsgSenderId = json['latest_message']['sender_id'] is int
+          ? json['latest_message']['sender_id']
+          : int.tryParse(json['latest_message']['sender_id'].toString());
     } else if (json['messages'] != null && (json['messages'] as List).isNotEmpty) {
       lastMsg = json['messages'][0]['message'];
       lastMsgTime = json['messages'][0]['created_at'];
-      lastMsgSenderId = json['messages'][0]['sender_id'];
+      // 🔥 Amankan sender_id di dalam nested list messages
+      lastMsgSenderId = json['messages'][0]['sender_id'] is int
+          ? json['messages'][0]['sender_id']
+          : int.tryParse(json['messages'][0]['sender_id'].toString());
     }
 
     return ConversationModel(
-      id: json['id'],
-      user1Id: json['user1_id'],
-      user2Id: json['user2_id'],
+      // 🔥 Amankan ID Utama Percakapan
+      id: json['id'] is int 
+          ? json['id'] 
+          : (int.tryParse(json['id'].toString()) ?? 0),
+
+      // 🔥 Amankan ID Peserta Chat
+      user1Id: json['user1_id'] is int 
+          ? json['user1_id'] 
+          : (int.tryParse(json['user1_id'].toString()) ?? 0),
+
+      user2Id: json['user2_id'] is int 
+          ? json['user2_id'] 
+          : (int.tryParse(json['user2_id'].toString()) ?? 0),
+
       user1Name: json['user1'] != null ? json['user1']['name'] : null,
       user2Name: json['user2'] != null ? json['user2']['name'] : null,
       user1Photo: json['user1'] != null ? json['user1']['foto_profil'] : null,
       user2Photo: json['user2'] != null ? json['user2']['foto_profil'] : null,
+      
       lastMessage: lastMsg ?? json['last_message'],
       lastMessageTime: lastMsgTime,
       lastMessageSenderId: lastMsgSenderId,
-      unreadCount: json['unread_count'] ?? 0,
+
+      // 🔥 Amankan unread_count jika dikembalikan sebagai string oleh database
+      unreadCount: json['unread_count'] is int 
+          ? json['unread_count'] 
+          : (int.tryParse(json['unread_count'].toString()) ?? 0),
     );
   }
 }

@@ -5,6 +5,11 @@ import 'participants_controller.dart';
 
 class ParticipantsView extends GetView<ParticipantsController> {
   const ParticipantsView({super.key});
+  int _countStatus(String status) {
+    return controller.participants
+        .where((e) => e.status == status)
+        .length;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,41 +35,95 @@ class ParticipantsView extends GetView<ParticipantsController> {
           itemBuilder: (context, index) {
             final item = controller.participants[index];
 
-            return Card(
-              child: ListTile(
-                title: Text(item.user?.name ?? '-'),
-
-                // 🔥 STATUS / ACTION AREA
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item.status),
-                    const SizedBox(height: 6),
-
-                    if (item.status == 'accepted')
-                      const Text(
-                        "Silakan hadiri kegiatan di waktu dan tempat yang sudah ditentukan",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.green,
-                        ),
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 2.3,
+                    children: [
+                      _StatCard(
+                        title: "Total",
+                        value: controller.totalParticipants.value.toString(),
+                        icon: Icons.people,
+                        color: Colors.blue,
                       ),
-
-                    if (item.status == 'rejected' &&
-                        item.alasan != null &&
-                        item.alasan!.isNotEmpty)
-                      Text(
-                        "Alasan: ${item.alasan}",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.red,
-                        ),
+                      _StatCard(
+                        title: "Diterima",
+                        value: _countStatus('accepted').toString(),
+                        icon: Icons.check_circle,
+                        color: Colors.green,
                       ),
-                  ],
+                      _StatCard(
+                        title: "Menunggu",
+                        value: _countStatus('pending').toString(),
+                        icon: Icons.hourglass_empty,
+                        color: Colors.orange,
+                      ),
+                      _StatCard(
+                        title: "Ditolak",
+                        value: _countStatus('rejected').toString(),
+                        icon: Icons.cancel,
+                        color: Colors.red,
+                      ),
+                    ],
+                  ),
                 ),
 
-                trailing: _buildAction(item),
-              ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: controller.participants.length,
+                    itemBuilder: (context, index) {
+                      final item = controller.participants[index];
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        child: ListTile(
+                          title: Text(item.user?.name ?? '-'),
+
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(item.status),
+                              const SizedBox(height: 6),
+
+                              if (item.status == 'accepted')
+                                const Text(
+                                  "Silakan hadiri kegiatan di waktu dan tempat yang sudah ditentukan",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.green,
+                                  ),
+                                ),
+
+                              if (item.status == 'rejected' &&
+                                  item.alasan != null &&
+                                  item.alasan!.isNotEmpty)
+                                Text(
+                                  "Alasan: ${item.alasan}",
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                            ],
+                          ),
+
+                          trailing: _buildAction(item),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           },
         );
@@ -92,6 +151,14 @@ class ParticipantsView extends GetView<ParticipantsController> {
     }
 
     // pending
+    if (controller.currentUserId.value != controller.opportunityCreatorId.value) {
+      return const _StatusBadge(
+        text: "Menunggu",
+        color: Colors.orange,
+        icon: Icons.hourglass_empty,
+      );
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -218,6 +285,71 @@ class _StatusBadge extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
