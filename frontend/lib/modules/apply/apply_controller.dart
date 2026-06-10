@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import '../../../data/models/application_model.dart';
-import '../../../data/repositories/application_repository.dart';
+import '../../data/models/application_model.dart';
+import '../../data/repositories/application_repository.dart';
 
 class ApplyController extends GetxController {
   final repo = ApplicationRepository();
